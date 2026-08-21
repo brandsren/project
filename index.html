@@ -663,7 +663,7 @@
     </nav>
 
     <script>
-        // Data Store & State Initialization (Sample phrases with zero/unrated stars, stats zeroed)
+        // Data Store & State Initialization (Stats completely zeroed)
         let customPhrases = JSON.parse(localStorage.getItem('srs_master_phrases')) || [
             { id: '1', pt: "The tallest building in the city.", en: "O prédio mais alto da cidade.", stars: 0, hidePt: false, hideEn: false, interval: 1, repetition: 0, easeFactor: 2.5 },
             { id: '2', pt: "I would like to buy a round-trip ticket.", en: "Eu gostaria de comprar uma passagem de ida e volta.", stars: 0, hidePt: false, hideEn: false, interval: 3, repetition: 1, easeFactor: 2.5 },
@@ -698,6 +698,12 @@
         };
 
         let currentActiveIslandId = null;
+
+        function recordPlayAction() {
+            studyStats.totalRepsToday = (studyStats.totalRepsToday || 0) + 1;
+            studyStats.studyTimeToday = (studyStats.studyTimeToday || 0) + 1;
+            saveAll();
+        }
 
         function saveAll() {
             localStorage.setItem('srs_master_phrases', JSON.stringify(customPhrases));
@@ -891,9 +897,7 @@
                 else if (quality === 2) item.stars = 3;
                 else item.stars = 1;
 
-                studyStats.totalRepsToday += 1;
-                studyStats.studyTimeToday += 1;
-                saveAll();
+                recordPlayAction();
             }
 
             currentCardIndex = (currentCardIndex + 1) % allItems.length;
@@ -906,6 +910,7 @@
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = lang;
                 window.speechSynthesis.speak(utterance);
+                recordPlayAction();
             }
         }
 
@@ -1101,6 +1106,7 @@
                         setTimeout(speakRep, pauseTime);
                     };
                     window.speechSynthesis.speak(utterance);
+                    recordPlayAction();
                 } else {
                     playlistCurrentIndex++;
                     setTimeout(playNextPlaylistPhrase, pauseTime);
@@ -1388,6 +1394,7 @@
                         setTimeout(speakRep, pauseTime);
                     };
                     window.speechSynthesis.speak(utterance);
+                    recordPlayAction();
                 } else {
                     islandPlaylistIndex++;
                     setTimeout(playNextIslandPlaylistPhrase, pauseTime);
