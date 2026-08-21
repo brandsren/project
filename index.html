@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SRS-Master - Advanced Spaced Repetition Learning</title>
+    <title>SRS-Master - Interactive Language Learning</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome for Icons -->
@@ -34,12 +34,9 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            -webkit-tap-highlight-color: transparent;
+            -webkit-text-size-adjust: 100%;
         }
-        input[type="text"],
-        input[type="number"],
-        textarea,
-        select {
+        input, textarea, select {
             font-size: 16px !important;
         }
         .perspective-1000 {
@@ -56,350 +53,320 @@
         }
     </style>
 </head>
-<body class="h-full bg-slate-50 text-slate-800 antialiased flex flex-col pb-16 md:pb-0">
+<body class="h-full bg-slate-50 text-slate-800 antialiased flex flex-col">
 
     <!-- Header / Navbar -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="bg-brand-600 text-white p-2 rounded-xl flex items-center justify-center font-bold text-xl shadow-md">
-                    <i class="fa-solid fa-graduation-cap"></i>
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <div class="bg-brand-600 text-white p-1.5 rounded-lg flex items-center justify-center font-bold text-base shadow-md">
+                    <i class="fa-solid fa-earth-americas"></i>
                 </div>
-                <span class="text-xl font-bold bg-gradient-to-r from-brand-600 to-indigo-800 bg-clip-text text-transparent">SRS-Master</span>
+                <span class="text-lg font-bold bg-gradient-to-r from-brand-600 to-indigo-800 bg-clip-text text-transparent">SRS-Master</span>
             </div>
 
             <div class="flex items-center space-x-3">
                 <!-- Streak Counter -->
-                <div class="flex items-center bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg text-amber-700 text-xs sm:text-sm font-semibold shadow-sm">
-                    <i class="fa-solid fa-fire mr-1.5 text-amber-500 animate-pulse"></i>
-                    <span id="streakCount">5</span>d
+                <div class="flex items-center bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg text-amber-700 text-xs font-semibold shadow-sm">
+                    <i class="fa-solid fa-fire mr-1 text-amber-500"></i>
+                    <span id="streakCount">0</span>d
                 </div>
 
-                <!-- User Profile Avatar with Dropdown Reset Option -->
-                <div class="relative">
-                    <div onclick="toggleProfileMenu()" id="profileAvatarBtn" class="w-9 h-9 rounded-full bg-brand-100 border-2 border-brand-500 flex items-center justify-center text-brand-700 font-bold shadow-inner cursor-pointer hover:opacity-90 transition">
-                        <i class="fa-solid fa-user text-xs"></i>
-                    </div>
-                    <!-- Dropdown Menu for Reset Profile -->
-                    <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-2xl shadow-xl py-2 z-50">
-                        <div class="px-4 py-2 border-b border-slate-100 text-[11px] font-bold text-slate-400 uppercase tracking-wider">User Profile</div>
-                        <button onclick="resetProfileFromScratch()" class="w-full text-left px-4 py-2.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 flex items-center space-x-2 transition">
-                            <i class="fa-solid fa-rotate-right"></i>
-                            <span>Reset Profile (Start Fresh)</span>
-                        </button>
-                    </div>
+                <!-- User Profile Avatar -->
+                <div class="w-9 h-9 rounded-full bg-brand-100 border-2 border-brand-500 flex items-center justify-center text-brand-700 font-bold shadow-inner">
+                    <i class="fa-solid fa-user text-sm"></i>
                 </div>
             </div>
         </div>
     </header>
 
     <!-- Main Workspace -->
-    <div class="flex-1 flex overflow-hidden">
+    <div class="flex-1 flex overflow-hidden pb-16 md:pb-0">
         
         <!-- Sidebar Navigation (Desktop) -->
-        <aside class="w-64 bg-white border-r border-slate-200 hidden md:flex flex-col justify-between p-4">
+        <aside class="w-60 bg-white border-r border-slate-200 hidden md:flex flex-col justify-between p-3">
             <nav class="space-y-1">
-                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-semibold text-brand-700 bg-brand-50 transition">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-brand-700 bg-brand-50 transition">
                     <i class="fa-solid fa-chart-pie w-5"></i>
                     <span>Dashboard</span>
                 </button>
-                <button onclick="switchTab('flashcards')" id="nav-flashcards" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+                <button onclick="switchTab('flashcards')" id="nav-flashcards" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
                     <i class="fa-solid fa-clone w-5"></i>
                     <span>Flashcards</span>
                 </button>
-                <button onclick="switchTab('custom-phrases')" id="nav-custom-phrases" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+                <button onclick="switchTab('custom-phrases')" id="nav-custom-phrases" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
                     <i class="fa-solid fa-book-bookmark w-5"></i>
                     <span>My Custom Phrases</span>
                 </button>
-                <button onclick="switchTab('islands')" id="nav-islands" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
-                    <i class="fa-solid fa-compass w-5"></i>
+                <button onclick="switchTab('islands')" id="nav-islands" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+                    <i class="fa-solid fa-map w-5"></i>
                     <span>Language Islands</span>
                 </button>
-                <button onclick="switchTab('immersion')" id="nav-immersion" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+                <button onclick="switchTab('immersion')" id="nav-immersion" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
                     <i class="fa-solid fa-headphones w-5"></i>
                     <span>Audio & Reading</span>
                 </button>
-                <button onclick="switchTab('performance')" id="nav-performance" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+                <button onclick="switchTab('stats')" id="nav-stats" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
                     <i class="fa-solid fa-chart-line w-5"></i>
                     <span>Performance Stats</span>
                 </button>
             </nav>
 
-            <div class="bg-slate-100 p-4 rounded-xl border border-slate-200">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Daily Goal</span>
-                    <span id="goalPercent" class="text-xs font-bold text-brand-600">80%</span>
+            <div class="bg-slate-100 p-3 rounded-xl border border-slate-200">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Daily Goal</span>
+                    <span id="goalPercentSidebar" class="text-[11px] font-bold text-brand-600">0%</span>
                 </div>
-                <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                    <div id="goalProgressBar" class="bg-brand-600 h-full rounded-full transition-all duration-500" style="width: 80%"></div>
+                <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                    <div id="goalProgressBarSidebar" class="bg-brand-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
                 </div>
-                <p id="goalText" class="text-xs text-slate-500 mt-2">16 / 20 items practiced today</p>
+                <p id="goalTextSidebar" class="text-[11px] text-slate-500 mt-1">0 / 200 rep. today</p>
             </div>
         </aside>
 
-        <!-- iPhone Bottom Bar Navigation -->
-        <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 flex justify-around items-center h-16 px-2 shadow-lg">
-            <button onclick="switchTab('dashboard')" id="mob-nav-dashboard" class="flex flex-col items-center justify-center flex-1 py-1 text-brand-600">
-                <i class="fa-solid fa-chart-pie text-lg"></i>
-                <span class="text-[10px] font-bold mt-0.5">Home</span>
-            </button>
-            <button onclick="switchTab('flashcards')" id="mob-nav-flashcards" class="flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-slate-600">
-                <i class="fa-solid fa-clone text-lg"></i>
-                <span class="text-[10px] font-medium mt-0.5">Study</span>
-            </button>
-            <button onclick="switchTab('custom-phrases')" id="mob-nav-custom-phrases" class="flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-slate-600">
-                <i class="fa-solid fa-book-bookmark text-lg"></i>
-                <span class="text-[10px] font-medium mt-0.5">Phrases</span>
-            </button>
-            <button onclick="switchTab('islands')" id="mob-nav-islands" class="flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-slate-600">
-                <i class="fa-solid fa-compass text-lg"></i>
-                <span class="text-[10px] font-medium mt-0.5">Islands</span>
-            </button>
-            <button onclick="switchTab('immersion')" id="mob-nav-immersion" class="flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-slate-600">
-                <i class="fa-solid fa-headphones text-lg"></i>
-                <span class="text-[10px] font-medium mt-0.5">Audio</span>
-            </button>
-            <button onclick="switchTab('performance')" id="mob-nav-performance" class="flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-slate-600">
-                <i class="fa-solid fa-chart-line text-lg"></i>
-                <span class="text-[10px] font-medium mt-0.5">Stats</span>
-            </button>
-        </div>
-
         <!-- Content Area -->
-        <main class="flex-1 overflow-y-auto p-4 sm:p-8 pb-20 md:pb-8">
+        <main id="mainContentArea" class="flex-1 overflow-y-auto p-3 sm:p-6 max-w-3xl mx-auto w-full space-y-4">
             
             <!-- 1. DASHBOARD VIEW -->
-            <section id="view-dashboard" class="space-y-6 max-w-5xl mx-auto">
-                <div class="bg-gradient-to-r from-brand-600 to-indigo-700 text-white rounded-3xl p-6 sm:p-8 shadow-xl flex flex-col md:flex-row justify-between items-center relative overflow-hidden">
-                    <div class="absolute right-0 bottom-0 opacity-10 translate-x-10 translate-y-10">
-                        <i class="fa-solid fa-graduation-cap text-9xl"></i>
-                    </div>
-                    <div class="z-10 mb-6 md:mb-0 space-y-2">
-                        <h1 class="text-2xl sm:text-3xl font-bold">Welcome back, Student! 👋</h1>
-                        <p class="text-brand-100 text-sm sm:text-base max-w-lg">Master languages by organizing phrases into islands, rating mastery, and studying daily with SRS-Master.</p>
-                        <div class="pt-2 flex space-x-3">
-                            <button onclick="switchTab('custom-phrases')" class="bg-white text-brand-700 font-semibold px-5 py-2.5 rounded-xl shadow hover:bg-brand-50 transition text-sm">
-                                <i class="fa-solid fa-plus mr-1"></i> Add Custom Phrases
+            <section id="view-dashboard" class="space-y-4">
+                <div class="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2.5">
+                            <div class="w-9 h-9 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold">
+                                <i class="fa-solid fa-flag text-sm"></i>
+                            </div>
+                            <h2 class="text-base font-bold text-slate-900">Meta de hoje</h2>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="openGoalModal()" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition shadow-sm" title="Configurar meta">
+                                <i class="fa-solid fa-sliders text-xs"></i>
                             </button>
+                            <div id="goalPercentBadge" class="bg-brand-50 text-brand-700 font-extrabold text-xs px-3 py-1.5 rounded-full border border-brand-100">
+                                0%
+                            </div>
                         </div>
                     </div>
-                    <div class="z-10 bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20 grid grid-cols-2 gap-4 text-center w-full md:w-auto">
-                        <div>
-                            <div class="text-2xl font-extrabold" id="statWords">12</div>
-                            <div class="text-xs text-brand-100 font-medium">Total Phrases</div>
-                        </div>
-                        <div>
-                            <div class="text-2xl font-extrabold" id="statAccuracy">92%</div>
-                            <div class="text-xs text-brand-100 font-medium">Accuracy</div>
-                        </div>
-                        <div>
-                            <div class="text-2xl font-extrabold" id="statMinutesToday">0m</div>
-                            <div class="text-xs text-brand-100 font-medium">Study Time Today</div>
-                        </div>
-                        <div>
-                            <div class="text-2xl font-extrabold" id="statRepsToday">0</div>
-                            <div class="text-xs text-brand-100 font-medium">Reps Today</div>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Extended Cumulative Stats Banner & Goal Config -->
-                <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm grid grid-cols-2 sm:grid-cols-4 gap-4 text-center items-center">
-                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                        <div class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Study Time</div>
-                        <div class="text-lg sm:text-xl font-black text-brand-600" id="statMinutesTotal">0 mins</div>
-                    </div>
-                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                        <div class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total Reps</div>
-                        <div class="text-lg sm:text-xl font-black text-indigo-600" id="statRepsTotal">0 reps</div>
-                    </div>
-                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                        <div class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Goal Status</div>
-                        <div class="text-lg sm:text-xl font-black text-emerald-600" id="statGoalStatus">In Progress</div>
-                    </div>
-                    <!-- Configure Daily Goal Box -->
-                    <div class="p-3 bg-brand-50 rounded-xl border border-brand-200 flex flex-col justify-center items-center space-y-1.5">
-                        <div class="text-[10px] sm:text-xs font-bold text-brand-800 uppercase tracking-wider">Daily Goal</div>
-                        <div class="flex items-center space-x-1.5">
-                            <input type="number" id="dailyGoalInput" min="1" max="500" value="20" onchange="updateDailyGoal(this.value)" class="w-16 bg-white border border-brand-300 rounded-lg px-2 py-1 text-center font-bold text-brand-700 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
-                            <span class="text-[10px] sm:text-xs font-semibold text-brand-700">reps</span>
+                    <!-- Minutos Progress Card -->
+                    <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 space-y-2">
+                        <div class="flex items-center justify-between text-xs font-semibold text-slate-700">
+                            <div class="flex items-center space-x-2">
+                                <i class="fa-regular fa-clock text-brand-600"></i>
+                                <span>Minutos</span>
+                            </div>
+                            <span id="minutosGoalText" class="text-slate-500 font-bold">0/10 min</span>
                         </div>
+                        <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                            <div id="minutosProgressBar" class="bg-brand-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Repetições Progress Card -->
+                    <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 space-y-2">
+                        <div class="flex items-center justify-between text-xs font-semibold text-slate-700">
+                            <div class="flex items-center space-x-2">
+                                <i class="fa-solid fa-rotate text-brand-600"></i>
+                                <span>Repetições</span>
+                            </div>
+                            <span id="repGoalText" class="text-slate-500 font-bold">0/200 rep.</span>
+                        </div>
+                        <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                            <div id="repProgressBar" class="bg-brand-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Regularity Footer -->
+                    <div class="flex items-center space-x-2 text-xs text-slate-500 font-medium pt-1">
+                        <i class="fa-regular fa-calendar text-slate-400"></i>
+                        <span>Regularidade: 0 dos últimos 7 dias</span>
                     </div>
                 </div>
 
                 <!-- Quick Practice Grid -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-                    <div onclick="switchTab('flashcards')" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer group">
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center font-bold text-lg sm:text-xl mb-3 group-hover:bg-indigo-600 group-hover:text-white transition">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div onclick="switchTab('flashcards')" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer group text-center">
+                        <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center font-bold text-lg mx-auto mb-2 group-hover:bg-indigo-600 group-hover:text-white transition">
                             <i class="fa-solid fa-clone"></i>
                         </div>
-                        <h3 class="text-base sm:text-lg font-bold text-slate-900 mb-1">Flashcards</h3>
-                        <p class="text-xs sm:text-sm text-slate-500">Spaced repetition deck.</p>
+                        <h3 class="text-sm font-bold text-slate-900">Flashcards</h3>
                     </div>
 
-                    <div onclick="switchTab('custom-phrases')" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer group">
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-brand-50 text-brand-600 rounded-xl flex items-center justify-center font-bold text-lg sm:text-xl mb-3 group-hover:bg-brand-600 group-hover:text-white transition">
+                    <div onclick="switchTab('custom-phrases')" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer group text-center">
+                        <div class="w-10 h-10 bg-brand-50 text-brand-600 rounded-xl flex items-center justify-center font-bold text-lg mx-auto mb-2 group-hover:bg-brand-600 group-hover:text-white transition">
                             <i class="fa-solid fa-book-bookmark"></i>
                         </div>
-                        <h3 class="text-base sm:text-lg font-bold text-slate-900 mb-1">My Phrases</h3>
-                        <p class="text-xs sm:text-sm text-slate-500">Star mastery & list.</p>
+                        <h3 class="text-sm font-bold text-slate-900">My Phrases</h3>
                     </div>
 
-                    <div onclick="switchTab('islands')" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer group">
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center font-bold text-lg sm:text-xl mb-3 group-hover:bg-teal-600 group-hover:text-white transition">
-                            <i class="fa-solid fa-compass"></i>
+                    <div onclick="switchTab('islands')" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer group text-center">
+                        <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center font-bold text-lg mx-auto mb-2 group-hover:bg-emerald-600 group-hover:text-white transition">
+                            <i class="fa-solid fa-map"></i>
                         </div>
-                        <h3 class="text-base sm:text-lg font-bold text-slate-900 mb-1">Islands</h3>
-                        <p class="text-xs sm:text-sm text-slate-500">Thematic phrase groups.</p>
+                        <h3 class="text-sm font-bold text-slate-900">Islands</h3>
                     </div>
 
-                    <div onclick="switchTab('immersion')" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer group">
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center font-bold text-lg sm:text-xl mb-3 group-hover:bg-emerald-600 group-hover:text-white transition">
-                            <i class="fa-solid fa-headphones"></i>
+                    <div onclick="switchTab('stats')" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer group text-center">
+                        <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center font-bold text-lg mx-auto mb-2 group-hover:bg-amber-600 group-hover:text-white transition">
+                            <i class="fa-solid fa-chart-line"></i>
                         </div>
-                        <h3 class="text-base sm:text-lg font-bold text-slate-900 mb-1">Audio Stories</h3>
-                        <p class="text-xs sm:text-sm text-slate-500">Bilingual readings.</p>
+                        <h3 class="text-sm font-bold text-slate-900">Stats</h3>
                     </div>
                 </div>
             </section>
 
             <!-- 2. FLASHCARDS VIEW -->
-            <section id="view-flashcards" class="hidden max-w-xl mx-auto space-y-6">
+            <section id="view-flashcards" class="hidden max-w-md mx-auto space-y-4">
                 <div class="flex items-center justify-between">
-                    <div>
-                        <h2 class="text-lg sm:text-xl font-bold text-slate-900">Spaced Repetition (SM-2)</h2>
-                        <p class="text-xs text-slate-500" id="leitnerBoxInfo">Interval: 1 day | Ease Factor: 2.5</p>
-                    </div>
-                    <span id="cardProgress" class="text-xs sm:text-sm font-semibold text-slate-500">1 / 5</span>
+                    <h2 class="text-lg font-bold text-slate-900">SM-2 Spaced Repetition</h2>
+                    <span id="cardProgress" class="text-xs font-semibold text-slate-500">1 / 5</span>
                 </div>
 
                 <!-- Card container -->
-                <div class="perspective-1000 h-72 sm:h-80 w-full cursor-pointer" onclick="flipCard()">
-                    <div id="flashcardInner" class="relative w-full h-full duration-500 transform-style-3d shadow-xl rounded-3xl">
-                        <!-- Front -->
-                        <div class="absolute inset-0 bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 flex flex-col justify-between backface-hidden">
-                            <div class="flex justify-between items-center text-slate-400 text-xs sm:text-sm font-medium">
-                                <span id="cardFrontLang">Question / Front</span>
+                <div class="perspective-1000 h-72 w-full cursor-pointer" onclick="flipCard()">
+                    <div id="flashcardInner" class="relative w-full h-full duration-500 transform-style-3d shadow-xl rounded-2xl">
+                        <!-- Front (Portuguese) -->
+                        <div class="absolute inset-0 bg-white border border-slate-200 rounded-2xl p-6 flex flex-col justify-between backface-hidden">
+                            <div class="flex justify-between items-center text-slate-400 text-xs font-medium">
+                                <span>Frente (Português)</span>
                                 <i class="fa-solid fa-rotate"></i>
                             </div>
                             <div class="text-center space-y-2">
-                                <h3 id="cardFrontText" class="text-xl sm:text-3xl font-extrabold text-slate-900">O prédio mais alto da cidade.</h3>
-                                <p class="text-[11px] sm:text-xs text-slate-400">Tap to flip card</p>
+                                <h3 id="cardFrontText" class="text-xl font-extrabold text-slate-900">O prédio mais alto da cidade.</h3>
+                                <p class="text-[11px] text-slate-400">Toque para virar o cartão</p>
                             </div>
-                            <div class="flex justify-center space-x-2">
-                                <button onclick="event.stopPropagation(); playPronunciation(document.getElementById('cardFrontText').innerText, 'pt-BR');" class="bg-brand-50 text-brand-600 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold hover:bg-brand-100 transition">
-                                    <i class="fa-solid fa-volume-high mr-2"></i> Listen
+                            <div class="flex justify-center">
+                                <button onclick="event.stopPropagation(); playPronunciation(document.getElementById('cardFrontText').innerText, 'pt-BR');" class="bg-brand-50 text-brand-600 px-3 py-1.5 rounded-xl text-xs font-semibold hover:bg-brand-100 transition">
+                                    <i class="fa-solid fa-volume-high mr-1"></i> Ouvir PT
                                 </button>
                             </div>
                         </div>
-                        <!-- Back -->
-                        <div class="absolute inset-0 bg-brand-600 text-white rounded-3xl p-6 sm:p-8 flex flex-col justify-between backface-hidden rotate-y-180">
-                            <div class="flex justify-between items-center text-brand-200 text-xs sm:text-sm font-medium">
-                                <span id="cardBackLang">Answer / Back</span>
+                        <!-- Back (English) -->
+                        <div class="absolute inset-0 bg-brand-600 text-white rounded-2xl p-6 flex flex-col justify-between backface-hidden rotate-y-180">
+                            <div class="flex justify-between items-center text-brand-200 text-xs font-medium">
+                                <span>Verso (English)</span>
                                 <i class="fa-solid fa-rotate"></i>
                             </div>
-                            <div class="text-center space-y-3">
-                                <h3 id="cardBackText" class="text-xl sm:text-3xl font-extrabold">The tallest building in the city.</h3>
+                            <div class="text-center space-y-2">
+                                <h3 id="cardBackText" class="text-xl font-extrabold">The tallest building in the city.</h3>
                             </div>
                             <div class="flex justify-center">
-                                <button onclick="event.stopPropagation(); playPronunciation(document.getElementById('cardBackText').innerText, 'en-US');" class="bg-white/20 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold hover:bg-white/30 transition">
-                                    <i class="fa-solid fa-volume-high mr-2"></i> Listen
+                                <button onclick="event.stopPropagation(); playPronunciation(document.getElementById('cardBackText').innerText, 'en-US');" class="bg-white/20 text-white px-3 py-1.5 rounded-xl text-xs font-semibold hover:bg-white/30 transition">
+                                    <i class="fa-solid fa-volume-high mr-1"></i> Listen EN
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- SM-2 Algorithm Rating Controls -->
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2">
-                    <button onclick="sm2Answer(0)" class="bg-rose-50 text-rose-700 border border-rose-200 py-3 rounded-xl font-bold text-xs hover:bg-rose-100 transition flex flex-col items-center">
-                        <span>Again (0)</span>
-                        <span class="text-[9px] opacity-75 font-normal">Reset 1d</span>
+                <!-- SM-2 Action Controls -->
+                <div class="grid grid-cols-4 gap-2 pt-2">
+                    <button onclick="answerCard(1)" class="bg-rose-50 text-rose-700 border border-rose-200 py-2.5 rounded-xl font-bold text-xs hover:bg-rose-100 transition flex flex-col items-center">
+                        <span>Again</span>
+                        <span class="text-[9px] opacity-75">1d</span>
                     </button>
-                    <button onclick="sm2Answer(3)" class="bg-amber-50 text-amber-700 border border-amber-200 py-3 rounded-xl font-bold text-xs hover:bg-amber-100 transition flex flex-col items-center">
-                        <span>Hard (3)</span>
-                        <span class="text-[9px] opacity-75 font-normal">Short interval</span>
+                    <button onclick="answerCard(2)" class="bg-orange-50 text-orange-700 border border-orange-200 py-2.5 rounded-xl font-bold text-xs hover:bg-orange-100 transition flex flex-col items-center">
+                        <span>Hard</span>
+                        <span class="text-[9px] opacity-75">3d</span>
                     </button>
-                    <button onclick="sm2Answer(4)" class="bg-brand-50 text-brand-700 border border-brand-200 py-3 rounded-xl font-bold text-xs hover:bg-brand-100 transition flex flex-col items-center">
-                        <span>Good (4)</span>
-                        <span class="text-[9px] opacity-75 font-normal">Standard scale</span>
+                    <button onclick="answerCard(3)" class="bg-amber-50 text-amber-700 border border-amber-200 py-2.5 rounded-xl font-bold text-xs hover:bg-amber-100 transition flex flex-col items-center">
+                        <span>Good</span>
+                        <span class="text-[9px] opacity-75">7d</span>
                     </button>
-                    <button onclick="sm2Answer(5)" class="bg-emerald-50 text-emerald-700 border border-emerald-200 py-3 rounded-xl font-bold text-xs hover:bg-emerald-100 transition flex flex-col items-center">
-                        <span>Easy (5)</span>
-                        <span class="text-[9px] opacity-75 font-normal">Max interval</span>
+                    <button onclick="answerCard(4)" class="bg-emerald-50 text-emerald-700 border border-emerald-200 py-2.5 rounded-xl font-bold text-xs hover:bg-emerald-100 transition flex flex-col items-center">
+                        <span>Easy</span>
+                        <span class="text-[9px] opacity-75">14d</span>
                     </button>
                 </div>
             </section>
 
             <!-- 3. CUSTOM PHRASES VIEW -->
-            <section id="view-custom-phrases" class="hidden max-w-3xl mx-auto space-y-6">
-                <div class="bg-white border border-slate-200 rounded-3xl p-5 sm:p-8 shadow-sm space-y-6">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <section id="view-custom-phrases" class="hidden space-y-4">
+                <div class="bg-white border border-slate-200 rounded-3xl p-4 sm:p-6 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                         <div>
-                            <h2 class="text-lg sm:text-xl font-bold text-slate-900">My Custom Phrases</h2>
-                            <p class="text-xs sm:text-sm text-slate-500">Manage phrases, star mastery ratings, and island categories.</p>
+                            <h2 class="text-lg font-bold text-slate-900">My Custom Phrases</h2>
+                            <p class="text-xs text-slate-500">Inbox / General phrases repository.</p>
                         </div>
-                        <span id="customPhraseCount" class="bg-brand-50 text-brand-700 font-bold text-xs px-3 py-1 rounded-full border border-brand-100">0 Items</span>
+                        <span id="customPhraseCount" class="bg-brand-50 text-brand-700 font-bold text-xs px-2.5 py-0.5 rounded-full border border-brand-100">0 Items</span>
                     </div>
 
-                    <!-- Global Toggle Visibility Controls & Playlist -->
-                    <div class="bg-brand-50 border border-brand-100 p-4 rounded-2xl space-y-4">
-                        <div class="flex flex-wrap items-center justify-between gap-3">
-                            <div class="flex items-center space-x-2 text-xs sm:text-sm font-semibold text-brand-900">
-                                <i class="fa-solid fa-eye-slash text-brand-600"></i>
-                                <span>Quiz Mode (Hide Cards):</span>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <label class="inline-flex items-center text-xs font-semibold text-slate-700 cursor-pointer bg-white px-2.5 py-1.5 rounded-xl border border-brand-200 shadow-sm">
-                                    <input type="checkbox" id="hidePtGlobal" onchange="toggleGlobalHide()" class="rounded border-slate-300 text-brand-600 focus:ring-brand-500 mr-1.5">
-                                    Hide Front
-                                </label>
-                                <label class="inline-flex items-center text-xs font-semibold text-slate-700 cursor-pointer bg-white px-2.5 py-1.5 rounded-xl border border-brand-200 shadow-sm">
-                                    <input type="checkbox" id="hideEnGlobal" onchange="toggleGlobalHide()" class="rounded border-slate-300 text-brand-600 focus:ring-brand-500 mr-1.5">
-                                    Hide Back
-                                </label>
-                            </div>
+                    <!-- Global Toggle Visibility Controls for Quiz Mode -->
+                    <div class="bg-brand-50 border border-brand-100 p-3 rounded-2xl flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex items-center space-x-2 text-xs font-semibold text-brand-900">
+                            <i class="fa-solid fa-eye-slash text-brand-600"></i>
+                            <span>Quiz Mode:</span>
                         </div>
-
-                        <!-- Continuous Audio Playlist Controls -->
-                        <div class="border-t border-brand-200/60 pt-3 flex flex-wrap items-center justify-between gap-3">
-                            <div class="flex items-center space-x-2 text-xs sm:text-sm font-semibold text-brand-900">
-                                <i class="fa-solid fa-headphones text-brand-600"></i>
-                                <span>Audio Playlist:</span>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <button type="button" onclick="togglePlaylistPlayback()" id="playlistPlayBtn" class="bg-brand-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow hover:bg-brand-700 transition flex items-center space-x-2">
-                                    <i class="fa-solid fa-play" id="playlistPlayIcon"></i>
-                                    <span id="playlistPlayText">Play All</span>
-                                </button>
-                            </div>
+                        <div class="flex items-center space-x-2">
+                            <label class="inline-flex items-center text-[11px] font-semibold text-slate-700 cursor-pointer bg-white px-2 py-1 rounded-xl border border-brand-200 shadow-sm">
+                                <input type="checkbox" id="hidePtGlobal" onchange="toggleGlobalHide()" class="rounded border-slate-300 text-brand-600 focus:ring-brand-500 mr-1.5">
+                                Hide English
+                            </label>
+                            <label class="inline-flex items-center text-[11px] font-semibold text-slate-700 cursor-pointer bg-white px-2 py-1 rounded-xl border border-brand-200 shadow-sm">
+                                <input type="checkbox" id="hideEnGlobal" onchange="toggleGlobalHide()" class="rounded border-slate-300 text-brand-600 focus:ring-brand-500 mr-1.5">
+                                Hide Portuguese
+                            </label>
                         </div>
                     </div>
 
-                    <!-- Add Form -->
-                    <form onsubmit="addCustomPhrase(event)" class="bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200 space-y-4">
-                        <h3 class="text-xs sm:text-sm font-bold text-slate-800 flex items-center">
+                    <!-- Audio Playlist Controls with Pause Time -->
+                    <div class="bg-slate-50 border border-slate-200 p-3 rounded-2xl flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex items-center space-x-2">
+                            <button onclick="toggleAudioPlaylist()" id="playlistPlayBtn" class="bg-brand-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shadow hover:bg-brand-700 transition">
+                                <i class="fa-solid fa-play" id="playlistPlayIcon"></i>
+                            </button>
+                            <div>
+                                <p class="text-xs font-bold text-slate-800">Playlist Player</p>
+                                <p class="text-[10px] text-slate-500" id="playlistStatus">Ready</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="flex items-center space-x-1">
+                                <label class="text-[10px] font-semibold text-slate-600">Rep:</label>
+                                <select id="phraseRepeatCount" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs font-semibold text-slate-700 focus:outline-none">
+                                    <option value="1">1x</option>
+                                    <option value="2">2x</option>
+                                    <option value="3">3x</option>
+                                    <option value="4">4x</option>
+                                    <option value="5">5x</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <label class="text-[10px] font-semibold text-slate-600">Pause:</label>
+                                <select id="phrasePauseTime" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs font-semibold text-slate-700 focus:outline-none">
+                                    <option value="500">0.5s</option>
+                                    <option value="1000" selected>1.0s</option>
+                                    <option value="2000">2.0s</option>
+                                    <option value="3000">3.0s</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add Form with Compact Island Selector -->
+                    <form onsubmit="addCustomPhrase(event)" class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                        <h3 class="text-xs font-bold text-slate-800 flex items-center">
                             <i class="fa-solid fa-plus-circle text-brand-600 mr-2"></i> Add New Phrase Pair
                         </h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-[11px] sm:text-xs font-semibold text-slate-600 mb-1">Front Text / Question</label>
-                                <textarea id="newPtPhrase" rows="2" required placeholder="Ex: Front text here..." class="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">English Phrase (Primary)</label>
+                                <textarea id="newPtPhrase" rows="2" required placeholder="English text..." class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
                             </div>
                             <div>
-                                <label class="block text-[11px] sm:text-xs font-semibold text-slate-600 mb-1">Back Text / Translation</label>
-                                <textarea id="newEnPhrase" rows="2" required placeholder="Ex: Back text here..." class="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Portuguese Translation</label>
+                                <textarea id="newEnPhrase" rows="2" required placeholder="Tradução..." class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
                             </div>
                         </div>
-                        <div class="flex flex-col sm:flex-row justify-between items-center gap-3">
-                            <div class="w-full sm:w-auto flex items-center space-x-2">
-                                <label class="text-xs font-semibold text-slate-600">Island:</label>
-                                <select id="newPhraseIsland" class="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
-                                    <!-- Populated dynamically -->
-                                </select>
-                            </div>
-                            <button type="submit" class="w-full sm:w-auto bg-brand-600 text-white font-semibold px-6 py-2.5 rounded-xl text-xs sm:text-sm shadow hover:bg-brand-700 transition">
-                                <i class="fa-solid fa-check mr-1.5"></i> Save Phrase
+                        <!-- Compact Assign to Island Dropdown -->
+                        <div class="flex items-center space-x-2 pt-1">
+                            <label class="text-[11px] font-semibold text-slate-600 whitespace-nowrap">Assign to Island:</label>
+                            <select id="newPhraseIslandSelect" class="flex-1 bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:outline-none">
+                                <option value="">Inbox (General)</option>
+                            </select>
+                        </div>
+                        <div class="flex justify-end pt-1">
+                            <button type="submit" class="bg-brand-600 text-white font-semibold px-5 py-2 rounded-xl text-xs shadow hover:bg-brand-700 transition">
+                                <i class="fa-solid fa-check mr-1"></i> Save Phrase
                             </button>
                         </div>
                     </form>
@@ -412,184 +379,222 @@
             </section>
 
             <!-- 4. LANGUAGE ISLANDS VIEW -->
-            <section id="view-islands" class="hidden max-w-4xl mx-auto space-y-6">
-                <div class="bg-white border border-slate-200 rounded-3xl p-5 sm:p-8 shadow-sm space-y-6">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-4">
-                        <div>
-                            <h2 class="text-lg sm:text-xl font-bold text-slate-900" id="islandsViewTitle">Language Islands</h2>
-                            <p class="text-xs sm:text-sm text-slate-500" id="islandsViewSubtitle">Select an island to manage specific phrases or create new islands.</p>
+            <section id="view-islands" class="hidden space-y-4">
+                <!-- Islands Home View -->
+                <div id="islandsHomeView" class="space-y-4">
+                    <div class="bg-white border border-slate-200 rounded-3xl p-4 sm:p-6 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-900">Language Islands</h2>
+                                <p class="text-xs text-slate-500">Organize vocabulary into thematic collections.</p>
+                            </div>
                         </div>
-                        <div id="islandsTopActionContainer" class="flex items-center space-x-2 w-full sm:w-auto">
-                            <form onsubmit="createNewIsland(event)" class="flex space-x-2 w-full">
-                                <input type="text" id="newIslandName" required placeholder="New Island Name..." class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500 flex-1">
-                                <button type="submit" class="bg-teal-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow hover:bg-teal-700 transition shrink-0">
-                                    <i class="fa-solid fa-plus mr-1"></i> Add
-                                </button>
-                            </form>
-                        </div>
-                    </div>
 
-                    <!-- Breadcrumb if inside an island view -->
-                    <div id="islandBreadcrumb" class="hidden flex items-center justify-between text-xs font-semibold text-slate-500 bg-slate-50 p-3 rounded-xl border border-slate-200">
-                        <div class="flex items-center space-x-2 overflow-hidden truncate">
-                            <button onclick="backToIslandsList()" class="text-brand-600 hover:underline flex items-center shrink-0">
-                                <i class="fa-solid fa-arrow-left mr-1"></i> All Islands
+                        <!-- Create Island Form -->
+                        <form onsubmit="createIsland(event)" class="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex flex-col sm:flex-row gap-2.5 items-center">
+                            <input type="text" id="newIslandName" required placeholder="Island Name (e.g. Travel)..." class="flex-1 w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <button type="submit" class="w-full sm:w-auto bg-brand-600 text-white font-semibold px-5 py-2 rounded-xl text-xs shadow hover:bg-brand-700 transition whitespace-nowrap">
+                                <i class="fa-solid fa-plus mr-1"></i> Create Island
                             </button>
-                            <span>/</span>
-                            <span id="activeIslandBreadcrumbName" class="text-slate-900 font-bold truncate"></span>
-                        </div>
-                        <div id="islandHeaderStudyBtn" class="flex items-center space-x-2 shrink-0"></div>
-                    </div>
+                        </form>
 
-                    <!-- Container for Islands Cards OR Specific Island Detail -->
-                    <div id="islandsContainer" class="space-y-4">
-                        <!-- Populated dynamically -->
+                        <!-- Islands List Grid -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3" id="islandsGridContainer">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Island Detail View -->
+                <div id="islandDetailView" class="hidden space-y-4">
+                    <div class="bg-white border border-slate-200 rounded-3xl p-4 sm:p-6 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <button onclick="backToIslandsHome()" class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 hover:bg-slate-200 transition shadow-sm">
+                                <i class="fa-solid fa-chevron-left text-sm"></i>
+                            </button>
+                            <div class="text-center">
+                                <h2 id="currentIslandTitleHeader" class="text-lg font-bold text-slate-900">Island Name</h2>
+                                <p class="text-[11px] font-semibold text-slate-400" id="islandSubStats">0 phrases</p>
+                            </div>
+                            <div class="w-9"></div>
+                        </div>
+
+                        <!-- Global Quiz Mode (Hide All) Controls -->
+                        <div class="bg-brand-50 border border-brand-100 p-3 rounded-2xl flex flex-wrap items-center justify-between gap-3">
+                            <div class="flex items-center space-x-2 text-xs font-semibold text-brand-900">
+                                <i class="fa-solid fa-eye-slash text-brand-600"></i>
+                                <span>Island Quiz Mode:</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <label class="inline-flex items-center text-[11px] font-semibold text-slate-700 cursor-pointer bg-white px-2 py-1 rounded-xl border border-brand-200 shadow-sm">
+                                    <input type="checkbox" id="islandHidePt" onchange="toggleIslandHide('pt')" class="rounded border-slate-300 text-brand-600 focus:ring-brand-500 mr-1.5">
+                                    Hide English
+                                </label>
+                                <label class="inline-flex items-center text-[11px] font-semibold text-slate-700 cursor-pointer bg-white px-2 py-1 rounded-xl border border-brand-200 shadow-sm">
+                                    <input type="checkbox" id="islandHideEn" onchange="toggleIslandHide('en')" class="rounded border-slate-300 text-brand-600 focus:ring-brand-500 mr-1.5">
+                                    Hide Portuguese
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Audio Playlist Controls & Star Filter -->
+                        <div class="bg-slate-50 border border-slate-200 p-3 rounded-2xl flex flex-wrap items-center justify-between gap-3">
+                            <div class="flex items-center space-x-2">
+                                <button onclick="toggleIslandAudioPlaylist()" id="islandPlaylistPlayBtn" class="bg-brand-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shadow hover:bg-brand-700 transition">
+                                    <i class="fa-solid fa-play" id="islandPlaylistPlayIcon"></i>
+                                </button>
+                                <div>
+                                    <p class="text-xs font-bold text-slate-800">Island Playlist</p>
+                                    <p class="text-[10px] text-slate-500" id="islandPlaylistStatus">Ready</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <div class="flex items-center space-x-1">
+                                    <label class="text-[10px] font-semibold text-slate-600">Rep:</label>
+                                    <select id="islandRepeatCount" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs font-semibold text-slate-700 focus:outline-none">
+                                        <option value="1">1x</option>
+                                        <option value="2">2x</option>
+                                        <option value="3">3x</option>
+                                        <option value="4">4x</option>
+                                        <option value="5">5x</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <label class="text-[10px] font-semibold text-slate-600">Pause:</label>
+                                    <select id="islandPauseTime" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs font-semibold text-slate-700 focus:outline-none">
+                                        <option value="500">0.5s</option>
+                                        <option value="1000" selected>1.0s</option>
+                                        <option value="2000">2.0s</option>
+                                        <option value="3000">3.0s</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <label class="text-[10px] font-semibold text-slate-600">Star:</label>
+                                    <select id="islandStarFilter" onchange="renderIslandDetailPhrases()" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs font-semibold text-slate-700 focus:outline-none">
+                                        <option value="all">All (★)</option>
+                                        <option value="5">★★★★★</option>
+                                        <option value="4">★★★★☆</option>
+                                        <option value="3">★★★☆☆</option>
+                                        <option value="2">★★☆☆☆</option>
+                                        <option value="1">★☆☆☆☆</option>
+                                        <option value="0">Unrated (0)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Add Phrase to Island Form with Compact Island Selector -->
+                        <form onsubmit="addPhraseToIsland(event)" class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                            <h3 class="text-xs font-bold text-slate-800 flex items-center">
+                                <i class="fa-solid fa-plus-circle text-brand-600 mr-2"></i> Add Phrase to Island
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">English Phrase (Primary)</label>
+                                    <textarea id="islandNewPt" rows="2" required placeholder="English text..." class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Portuguese Translation</label>
+                                    <textarea id="islandNewEn" rows="2" required placeholder="Tradução..." class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2 pt-1">
+                                <label class="text-[11px] font-semibold text-slate-600 whitespace-nowrap">Assign to Island:</label>
+                                <select id="islandPhraseTargetSelect" class="flex-1 bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:outline-none">
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                            <div class="flex justify-end pt-1">
+                                <button type="submit" class="bg-brand-600 text-white font-semibold px-5 py-2 rounded-xl text-xs shadow hover:bg-brand-700 transition">
+                                    <i class="fa-solid fa-check mr-1"></i> Save to Island
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Island Phrases List -->
+                        <div class="space-y-3" id="islandPhrasesListContainer">
+                            <!-- Populated dynamically -->
+                        </div>
                     </div>
                 </div>
             </section>
 
             <!-- 5. IMMERSION / AUDIO & READING VIEW -->
-            <section id="view-immersion" class="hidden max-w-3xl mx-auto space-y-6">
-                <div class="bg-white border border-slate-200 rounded-3xl p-5 sm:p-8 shadow-sm space-y-6">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <section id="view-immersion" class="hidden space-y-4">
+                <div class="bg-white border border-slate-200 rounded-3xl p-4 sm:p-6 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                         <div>
-                            <h2 class="text-lg sm:text-xl font-bold text-slate-900">Audio Reading Sample</h2>
-                            <p class="text-xs sm:text-sm text-slate-500">Bilingual Reading & Interactive Voice</p>
+                            <h2 class="text-lg font-bold text-slate-900">O Café da Manhã em Lisboa</h2>
+                            <p class="text-xs text-slate-500">Bilingual Reading & Audio Immersion</p>
                         </div>
-                        <button onclick="toggleAudioPlayback()" id="playAudioBtn" class="bg-brand-600 text-white w-12 h-12 rounded-full flex items-center justify-center text-lg shadow-lg hover:bg-brand-700 transition shrink-0">
+                        <button onclick="toggleAudioPlayback()" id="playAudioBtn" class="bg-brand-600 text-white w-10 h-10 rounded-full flex items-center justify-center text-sm shadow-lg hover:bg-brand-700 transition">
                             <i class="fa-solid fa-play" id="playIcon"></i>
                         </button>
                     </div>
 
                     <!-- Audio Progress Bar -->
                     <div class="space-y-1">
-                        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden cursor-pointer" id="audioTimeline">
+                        <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden cursor-pointer" id="audioTimeline">
                             <div id="audioProgress" class="bg-brand-600 h-full w-0 transition-all"></div>
                         </div>
-                        <div class="flex justify-between text-xs text-slate-400 font-medium">
+                        <div class="flex justify-between text-[11px] text-slate-400 font-medium">
                             <span id="audioCurrentTime">0:00</span>
                             <span id="audioTotalTime">0:45</span>
                         </div>
                     </div>
 
                     <!-- Interactive Text Passage -->
-                    <div class="bg-slate-50 p-5 sm:p-6 rounded-2xl border border-slate-100 text-base sm:text-lg leading-relaxed text-slate-700 space-y-4">
-                        <p class="cursor-pointer hover:bg-brand-50 p-2.5 rounded-xl transition" onclick="translateSentence(this, 'O sol nasceu brilhante sobre as ruas históricas de Lisboa na manhã de terça-feira.', 'The sun rose brightly over the historic streets of Lisbon on Tuesday morning.')">
-                            O sol nasceu brilhante sobre as ruas históricas de Lisboa na manhã de terça-feira. <span class="text-xs text-brand-600 font-semibold block mt-1">(Tap for translation & audio)</span>
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-base leading-relaxed text-slate-700 space-y-3">
+                        <p class="cursor-pointer hover:bg-brand-50 p-2 rounded-xl transition" onclick="translateSentence(this, 'The sun rose brightly over the historic streets of Lisbon on Tuesday morning.', 'O sol nasceu brilhante sobre as ruas históricas de Lisboa na manhã de terça-feira.')">
+                            The sun rose brightly over the historic streets of Lisbon on Tuesday morning. <span class="text-[11px] text-brand-600 font-semibold block mt-0.5">(Click for translation & audio)</span>
                         </p>
-                        <p class="cursor-pointer hover:bg-brand-50 p-2.5 rounded-xl transition" onclick="translateSentence(this, 'Ana entrou na pastelaria tradicional e pediu um pastel de nata quentinho com um café expresso.', 'Ana walked into the traditional bakery and ordered a warm custard tart with an espresso coffee.')">
-                            Ana entrou na pastelaria tradicional e pediu um pastel de nata quentinho com um café expresso. <span class="text-xs text-brand-600 font-semibold block mt-1">(Tap for translation & audio)</span>
+                        <p class="cursor-pointer hover:bg-brand-50 p-2 rounded-xl transition" onclick="translateSentence(this, 'Ana walked into the traditional bakery and ordered a warm custard tart with an espresso coffee.', 'Ana entrou na pastelaria tradicional e pediu um pastel de nata quentinho com um café expresso.')">
+                            Ana walked into the traditional bakery and ordered a warm custard tart with an espresso coffee. <span class="text-[11px] text-brand-600 font-semibold block mt-0.5">(Click for translation & audio)</span>
                         </p>
                     </div>
 
-                    <div id="translationBox" class="hidden bg-brand-50 border border-brand-100 p-4 rounded-xl text-xs sm:text-sm text-brand-900 font-medium space-y-2">
-                        <div><span class="font-bold">Front:</span> <span id="transPt"></span></div>
-                        <div><span class="font-bold">Back:</span> <span id="transEn"></span></div>
-                        <div class="pt-1 flex space-x-2">
-                            <button onclick="playPronunciation(document.getElementById('transPt').innerText, 'pt-BR')" class="bg-white text-brand-700 px-3 py-1 rounded-lg text-xs font-bold border border-brand-200">
-                                <i class="fa-solid fa-volume-high mr-1"></i> Listen
-                            </button>
-                        </div>
+                    <div id="translationBox" class="hidden bg-brand-50 border border-brand-100 p-3 rounded-2xl text-xs text-brand-900 font-medium space-y-1">
+                        <div><span class="font-bold">English:</span> <span id="transPt"></span></div>
+                        <div><span class="font-bold">Portuguese:</span> <span id="transEn"></span></div>
                     </div>
                 </div>
             </section>
 
-            <!-- 6. AI TUTOR CHAT VIEW -->
-            <section id="view-ai-chat" class="hidden max-w-3xl mx-auto h-[calc(100vh-12rem)] sm:h-[calc(100vh-10rem)] flex flex-col bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
-                <div class="bg-slate-50 px-5 sm:px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-9 h-9 sm:w-10 sm:h-10 bg-brand-600 text-white rounded-full flex items-center justify-center font-bold">
-                            <i class="fa-solid fa-robot text-sm"></i>
-                        </div>
+            <!-- 6. PERFORMANCE STATS VIEW -->
+            <section id="view-stats" class="hidden space-y-4">
+                <div class="bg-white border border-slate-200 rounded-3xl p-4 sm:p-6 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                         <div>
-                            <h3 class="font-bold text-slate-900 text-sm sm:text-base">SRS-Master AI Tutor</h3>
-                            <p class="text-[11px] text-emerald-600 font-semibold flex items-center">
-                                <span class="w-2 h-2 bg-emerald-500 rounded-full inline-block mr-1.5 animate-pulse"></span> Online
-                            </p>
+                            <h2 class="text-lg font-bold text-slate-900">Performance Statistics</h2>
+                            <p class="text-xs text-slate-500">Mastery levels & star breakdown.</p>
                         </div>
-                    </div>
-                    <button onclick="clearChat()" class="text-slate-400 hover:text-slate-600 text-xs sm:text-sm font-medium">Clear</button>
-                </div>
-
-                <!-- Chat Messages Stream -->
-                <div id="chatMessages" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
-                    <div class="flex items-start space-x-3">
-                        <div class="w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold shrink-0">AI</div>
-                        <div class="bg-slate-100 text-slate-800 px-4 py-3 rounded-2xl rounded-tl-none max-w-md text-xs sm:text-sm leading-relaxed">
-                            Hello! I am your SRS-Master AI assistant. Ask me questions or request new study phrases!
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Chat Input Form -->
-                <div class="p-3 sm:p-4 border-t border-slate-200 bg-white">
-                    <form onsubmit="sendChatMessage(event)" class="flex space-x-2">
-                        <input type="text" id="chatInput" placeholder="Type a message..." class="flex-1 bg-slate-100 border border-slate-200 rounded-xl px-4 py-3 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
-                        <button type="submit" class="bg-brand-600 text-white px-4 sm:px-5 py-3 rounded-xl font-semibold hover:bg-brand-700 transition shadow">
-                            <i class="fa-solid fa-paper-plane text-xs sm:text-sm"></i>
-                        </button>
-                    </form>
-                </div>
-            </section>
-
-            <!-- 6. PERFORMANCE STATISTICS VIEW -->
-            <section id="view-performance" class="hidden max-w-4xl mx-auto space-y-6">
-                <div class="bg-white border border-slate-200 rounded-3xl p-5 sm:p-8 shadow-sm space-y-6">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
-                        <div>
-                            <h2 class="text-lg sm:text-xl font-bold text-slate-900">Performance & Mastery Analytics</h2>
-                            <p class="text-xs sm:text-sm text-slate-500">Detailed breakdown of learned cards, review status, and star rating accuracy score.</p>
-                        </div>
-                        <div class="bg-brand-50 text-brand-700 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border border-brand-100" id="perfOverallScore">
-                            Accuracy: 0%
+                        <div class="text-right">
+                            <div class="text-xl font-extrabold text-brand-600" id="overallMasteryScore">0%</div>
+                            <div class="text-[10px] font-semibold text-slate-400">Mastery Score</div>
                         </div>
                     </div>
 
-                    <!-- Top Stat Cards -->
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
-                            <div class="text-xs font-bold text-slate-400 uppercase mb-1">Learned (★4-5)</div>
-                            <div class="text-xl sm:text-2xl font-black text-emerald-600" id="perfCountLearned">0</div>
+                    <!-- Cards Status Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl">
+                            <div class="text-[11px] font-bold text-emerald-600 uppercase">Learned (★4-5)</div>
+                            <div class="text-2xl font-extrabold text-emerald-900 mt-0.5" id="learnedCardsCount">0</div>
                         </div>
-                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
-                            <div class="text-xs font-bold text-slate-400 uppercase mb-1">In Review (★3)</div>
-                            <div class="text-xl sm:text-2xl font-black text-amber-600" id="perfCountReview">0</div>
+                        <div class="bg-amber-50 border border-amber-200 p-4 rounded-2xl">
+                            <div class="text-[11px] font-bold text-amber-600 uppercase">In Review (★3)</div>
+                            <div class="text-2xl font-extrabold text-amber-900 mt-0.5" id="inReviewCardsCount">0</div>
                         </div>
-                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
-                            <div class="text-xs font-bold text-slate-400 uppercase mb-1">To Learn (★1-2)</div>
-                            <div class="text-xl sm:text-2xl font-black text-rose-600" id="perfCountToLearn">0</div>
-                        </div>
-                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
-                            <div class="text-xs font-bold text-slate-400 uppercase mb-1">Total Cards</div>
-                            <div class="text-xl sm:text-2xl font-black text-brand-600" id="perfCountTotal">0</div>
+                        <div class="bg-rose-50 border border-rose-200 p-4 rounded-2xl">
+                            <div class="text-[11px] font-bold text-rose-600 uppercase">To Learn (★1-2)</div>
+                            <div class="text-2xl font-extrabold text-rose-900 mt-0.5" id="toLearnCardsCount">0</div>
                         </div>
                     </div>
 
-                    <!-- Star Breakdown & Mastery Progress -->
-                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
-                        <h3 class="text-xs sm:text-sm font-bold text-slate-800 flex items-center">
-                            <i class="fa-solid fa-star text-amber-400 mr-2"></i> Star Rating Mastery Breakdown
-                        </h3>
-                        <div class="space-y-3" id="perfStarBreakdownList">
+                    <!-- Star Breakdown & Accuracy -->
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                        <h3 class="text-xs font-bold text-slate-800">Star Knowledge Breakdown</h3>
+                        <div class="space-y-2.5" id="starBreakdownBars">
                             <!-- Populated dynamically -->
-                        </div>
-                    </div>
-
-                    <!-- Knowledge Distribution Bar -->
-                    <div class="space-y-2">
-                        <div class="flex justify-between text-xs font-semibold text-slate-600">
-                            <span>Knowledge Mastery Bar</span>
-                            <span id="perfMasteryPercent">0% Mastered</span>
-                        </div>
-                        <div class="w-full bg-slate-100 h-4 rounded-full overflow-hidden flex shadow-inner">
-                            <div id="barLearned" class="bg-emerald-500 h-full transition-all duration-500" style="width: 0%"></div>
-                            <div id="barReview" class="bg-amber-400 h-full transition-all duration-500" style="width: 0%"></div>
-                            <div id="barToLearn" class="bg-rose-500 h-full transition-all duration-500" style="width: 0%"></div>
-                        </div>
-                        <div class="flex justify-between text-[11px] text-slate-400 pt-1">
-                            <span class="flex items-center"><span class="w-2.5 h-2.5 bg-emerald-500 rounded-full inline-block mr-1"></span> Mastered (★4-5)</span>
-                            <span class="flex items-center"><span class="w-2.5 h-2.5 bg-amber-400 rounded-full inline-block mr-1"></span> In Review (★3)</span>
-                            <span class="flex items-center"><span class="w-2.5 h-2.5 bg-rose-500 rounded-full inline-block mr-1"></span> Beginner (★1-2)</span>
                         </div>
                     </div>
                 </div>
@@ -598,773 +603,845 @@
         </main>
     </div>
 
+    <!-- Goal Configuration Modal Window -->
+    <div id="goalModal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-5 animate-in fade-in zoom-in duration-200">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-base font-bold text-slate-900">Your daily goal</h3>
+                <button onclick="closeGoalModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+            <p class="text-xs text-slate-500 leading-relaxed">
+                Set a personal target. Reach either minutes or repetitions to complete your goal for today.
+            </p>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Minutos</label>
+                    <input type="number" id="modalGoalMinutes" min="1" max="180" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    <p class="text-[10px] text-slate-400 mt-1">Min 1</p>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Repetições</label>
+                    <input type="number" id="modalGoalReps" min="5" max="1000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    <p class="text-[10px] text-slate-400 mt-1">Min 20</p>
+                </div>
+            </div>
+            <div class="space-y-2 pt-2">
+                <button onclick="saveModalGoal()" class="w-full bg-brand-600 text-white font-bold py-3 rounded-2xl text-sm shadow-md hover:bg-brand-700 transition">
+                    Save goal
+                </button>
+                <button onclick="useDefaultGoal()" class="w-full text-brand-600 font-semibold py-2 rounded-xl text-xs hover:bg-brand-50 transition">
+                    Use default goal
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Navigation Bar (iPhone Optimized) -->
+    <nav class="md:hidden bg-white border-t border-slate-200 fixed bottom-0 left-0 right-0 z-50 flex justify-around items-center h-16 px-2 shadow-lg">
+        <button onclick="switchTab('dashboard')" id="mob-nav-dashboard" class="flex flex-col items-center justify-center flex-1 py-1 text-brand-600">
+            <i class="fa-solid fa-house text-base"></i>
+            <span class="text-[10px] font-semibold mt-1">Início</span>
+        </button>
+        <button onclick="switchTab('custom-phrases')" id="mob-nav-custom-phrases" class="flex flex-col items-center justify-center flex-1 py-1 text-slate-400">
+            <i class="fa-solid fa-book-bookmark text-base"></i>
+            <span class="text-[10px] font-semibold mt-1">Phrases</span>
+        </button>
+        <button onclick="switchTab('islands')" id="mob-nav-islands" class="flex flex-col items-center justify-center flex-1 py-1 text-slate-400">
+            <i class="fa-solid fa-map text-base"></i>
+            <span class="text-[10px] font-semibold mt-1">Islands</span>
+        </button>
+        <button onclick="switchTab('flashcards')" id="mob-nav-flashcards" class="flex flex-col items-center justify-center flex-1 py-1 text-slate-400">
+            <i class="fa-solid fa-clone text-base"></i>
+            <span class="text-[10px] font-semibold mt-1">Flashcards</span>
+        </button>
+        <button onclick="switchTab('stats')" id="mob-nav-stats" class="flex flex-col items-center justify-center flex-1 py-1 text-slate-400">
+            <i class="fa-solid fa-chart-bar text-base"></i>
+            <span class="text-[10px] font-semibold mt-1">Estatísticas</span>
+        </button>
+    </nav>
+
     <script>
-        let customPhrases = JSON.parse(localStorage.getItem('srsmaster_phrases')) || [];
+        // Data Store & State Initialization (Sample phrases with zero/unrated stars, stats zeroed)
+        let customPhrases = JSON.parse(localStorage.getItem('srs_master_phrases')) || [
+            { id: '1', pt: "The tallest building in the city.", en: "O prédio mais alto da cidade.", stars: 0, hidePt: false, hideEn: false, interval: 1, repetition: 0, easeFactor: 2.5 },
+            { id: '2', pt: "I would like to buy a round-trip ticket.", en: "Eu gostaria de comprar uma passagem de ida e volta.", stars: 0, hidePt: false, hideEn: false, interval: 3, repetition: 1, easeFactor: 2.5 },
+            { id: '3', pt: "Please, where is the nearest train station?", en: "Por favor, onde fica a estação de trem mais próxima?", stars: 0, hidePt: false, hideEn: false, interval: 6, repetition: 2, easeFactor: 2.5 }
+        ];
 
-        let phraseIslands = JSON.parse(localStorage.getItem('srsmaster_islands')) || ["General", "Travel", "Dining", "Grammar"];
-        let activeSelectedIsland = null;
+        let islands = JSON.parse(localStorage.getItem('srs_master_islands')) || [
+            { 
+                id: 'island-1', 
+                name: 'Sugestão de hoje', 
+                phrases: [ 
+                    { id: 't1', pt: 'I wake up at seven.', en: 'Eu acordo às sete.', stars: 0, hidePt: false, hideEn: false },
+                    { id: 't2', pt: 'Hello, how is your work?', en: 'Olá, como vai o trabalho?', stars: 0, hidePt: false, hideEn: false },
+                    { id: 't3', pt: "Let's go now.", en: 'Vamos agora.', stars: 0, hidePt: false, hideEn: false }
+                ] 
+            },
+            { 
+                id: 'island-2', 
+                name: 'Food & Dining', 
+                phrases: [ 
+                    { id: 'f1', pt: 'The check, please.', en: 'A conta, por favor.', stars: 0, hidePt: false, hideEn: false } 
+                ] 
+            }
+        ];
 
-        let islandStarFilters = {};
-        let islandGlobalHideState = {};
-
-        let isPlaylistPlaying = false;
-        let playlistAudioTimeout = null;
-
-        let studyStats = JSON.parse(localStorage.getItem('srsmaster_stats')) || {
-            minutesToday: 0,
-            minutesTotal: 0,
-            repsToday: 0,
-            repsTotal: 0,
-            lastDate: new Date().toDateString(),
-            dailyGoal: 20
+        let studyStats = JSON.parse(localStorage.getItem('srs_master_stats')) || {
+            studyTimeToday: 0,
+            totalRepsToday: 0,
+            streak: 0,
+            goalMinutes: 10,
+            goalReps: 200
         };
 
-        function checkDailyReset() {
-            const today = new Date().toDateString();
-            if (studyStats.lastDate !== today) {
-                studyStats.minutesToday = 0;
-                studyStats.repsToday = 0;
-                studyStats.lastDate = today;
-                saveStats();
-            }
-        }
-        checkDailyReset();
+        let currentActiveIslandId = null;
 
-        function saveStats() {
-            localStorage.setItem('srsmaster_stats', JSON.stringify(studyStats));
-            updateDashboardStatsUI();
+        function saveAll() {
+            localStorage.setItem('srs_master_phrases', JSON.stringify(customPhrases));
+            localStorage.setItem('srs_master_islands', JSON.stringify(islands));
+            localStorage.setItem('srs_master_stats', JSON.stringify(studyStats));
+            updateDashboardStats();
+            renderCustomPhrasesList();
+            renderIslandsHome();
+            updateIslandSelectDropdowns();
+            if (currentActiveIslandId) renderIslandDetailPhrases();
+            renderStatsView();
         }
 
-        function toggleProfileMenu() {
-            const dropdown = document.getElementById('profileDropdown');
-            if (dropdown) dropdown.classList.toggle('hidden');
+        function openGoalModal() {
+            document.getElementById('modalGoalMinutes').value = studyStats.goalMinutes || 10;
+            document.getElementById('modalGoalReps').value = studyStats.goalReps || 200;
+            document.getElementById('goalModal').classList.remove('hidden');
         }
 
-        // Close dropdown when clicking outside
-        window.addEventListener('click', function(e) {
-            const avatar = document.getElementById('profileAvatarBtn');
-            const dropdown = document.getElementById('profileDropdown');
-            if (avatar && dropdown && !avatar.contains(e.target) && !dropdown.contains(e.target)) {
-                dropdown.classList.add('hidden');
-            }
-        });
-
-        function resetProfileFromScratch() {
-            if (confirm("Are you sure you want to reset your profile? All custom phrases and statistics will be cleared, starting fresh from zero.")) {
-                customPhrases = [];
-                phraseIslands = ["General"];
-                studyStats = {
-                    minutesToday: 0,
-                    minutesTotal: 0,
-                    repsToday: 0,
-                    repsTotal: 0,
-                    lastDate: new Date().toDateString(),
-                    dailyGoal: 20
-                };
-                localStorage.removeItem('srsmaster_phrases');
-                localStorage.removeItem('srsmaster_islands');
-                localStorage.removeItem('srsmaster_stats');
-                toggleProfileMenu();
-                switchTab('dashboard');
-                updateDashboardStatsUI();
-            }
+        function closeGoalModal() {
+            document.getElementById('goalModal').classList.add('hidden');
         }
 
-        function updateDashboardStatsUI() {
-            const statWords = document.getElementById('statWords');
-            const statAccuracy = document.getElementById('statAccuracy');
-            const statMinutesToday = document.getElementById('statMinutesToday');
-            const statRepsToday = document.getElementById('statRepsToday');
-            const statMinutesTotal = document.getElementById('statMinutesTotal');
-            const statRepsTotal = document.getElementById('statRepsTotal');
-            const statGoalStatus = document.getElementById('statGoalStatus');
-            const goalProgressBar = document.getElementById('goalProgressBar');
-            const goalPercent = document.getElementById('goalPercent');
-            const goalText = document.getElementById('goalText');
-            const dailyGoalInput = document.getElementById('dailyGoalInput');
+        function saveModalGoal() {
+            const min = parseInt(document.getElementById('modalGoalMinutes').value) || 10;
+            const reps = parseInt(document.getElementById('modalGoalReps').value) || 200;
+            studyStats.goalMinutes = min;
+            studyStats.goalReps = reps;
+            saveAll();
+            closeGoalModal();
+        }
 
-            // Calculate calculated star accuracy score
-            let calculatedAccuracy = 0;
-            if (customPhrases.length > 0) {
-                const totalStarSum = customPhrases.reduce((acc, item) => acc + (item.stars || 3), 0);
-                calculatedAccuracy = Math.round((totalStarSum / (customPhrases.length * 5)) * 100);
-            }
+        function useDefaultGoal() {
+            studyStats.goalMinutes = 10;
+            studyStats.goalReps = 200;
+            saveAll();
+            closeGoalModal();
+        }
 
-            if (statWords) statWords.innerText = customPhrases.length;
-            if (statAccuracy) statAccuracy.innerText = `${calculatedAccuracy}%`;
-            if (statMinutesToday) statMinutesToday.innerText = `${studyStats.minutesToday}m`;
-            if (statRepsToday) statRepsToday.innerText = studyStats.repsToday;
-            if (statMinutesTotal) statMinutesTotal.innerText = `${studyStats.minutesTotal} mins`;
-            if (statRepsTotal) statRepsTotal.innerText = `${studyStats.repsTotal} reps`;
-            if (dailyGoalInput) dailyGoalInput.value = studyStats.dailyGoal;
+        function updateDashboardStats() {
+            document.getElementById('streakCount').innerText = studyStats.streak || 0;
 
-            const goal = studyStats.dailyGoal || 20;
-            const percent = Math.min(100, Math.round((studyStats.repsToday / goal) * 100));
-            if (goalPercent) goalPercent.innerText = `${percent}%`;
-            if (goalProgressBar) goalProgressBar.style.width = `${percent}%`;
-            if (goalText) goalText.innerText = `${studyStats.repsToday} / ${goal} items practiced today`;
+            const goalMin = studyStats.goalMinutes || 10;
+            const goalRep = studyStats.goalReps || 200;
+            const currentMin = studyStats.studyTimeToday || 0;
+            const currentRep = studyStats.totalRepsToday || 0;
 
-            if (statGoalStatus) {
-                if (studyStats.repsToday >= goal) {
-                    statGoalStatus.innerText = "Completed! 🎉";
-                    statGoalStatus.className = "text-lg sm:text-xl font-black text-emerald-600";
-                } else {
-                    statGoalStatus.innerText = "In Progress";
-                    statGoalStatus.className = "text-lg sm:text-xl font-black text-brand-600";
-                }
+            const minPct = Math.min(100, Math.round((currentMin / goalMin) * 100));
+            const repPct = Math.min(100, Math.round((currentRep / goalRep) * 100));
+            const overallPct = Math.max(minPct, repPct);
+
+            document.getElementById('goalPercentBadge').innerText = overallPct + '%';
+            document.getElementById('goalPercentSidebar').innerText = overallPct + '%';
+            document.getElementById('goalProgressBarSidebar').style.width = overallPct + '%';
+            document.getElementById('goalTextSidebar').innerText = `${currentRep} / ${goalRep} rep. today`;
+
+            document.getElementById('minutosGoalText').innerText = `${currentMin}/${goalMin} min`;
+            document.getElementById('minutosProgressBar').style.width = minPct + '%';
+
+            document.getElementById('repGoalText').innerText = `${currentRep}/${goalRep} rep.`;
+            document.getElementById('repProgressBar').style.width = repPct + '%';
+
+            const allItems = [...customPhrases, ...islands.flatMap(i => i.phrases)];
+            if (allItems.length > 0) {
+                const totalStars = allItems.reduce((acc, item) => acc + (item.stars || 0), 0);
+                const maxStars = allItems.length * 5;
+                const accPct = Math.round((totalStars / maxStars) * 100);
+                document.getElementById('overallMasteryScore').innerText = accPct + '%';
+            } else {
+                document.getElementById('overallMasteryScore').innerText = '0%';
             }
         }
 
-        function updateDailyGoal(val) {
-            const num = parseInt(val);
-            if (!isNaN(num) && num > 0) {
-                studyStats.dailyGoal = num;
-                saveStats();
+        function updateIslandSelectDropdowns() {
+            const opts = `<option value="">Inbox (General)</option>` + 
+                islands.map(i => `<option value="${i.id}">${i.name}</option>`).join('');
+            
+            const sel1 = document.getElementById('newPhraseIslandSelect');
+            if (sel1) sel1.innerHTML = opts;
+
+            const sel2 = document.getElementById('islandPhraseTargetSelect');
+            if (sel2) {
+                sel2.innerHTML = `<option value="">Inbox (General)</option>` + 
+                    islands.map(i => `<option value="${i.id}" ${i.id === currentActiveIslandId ? 'selected' : ''}>${i.name}</option>`).join('');
             }
         }
 
-        function recordRepetition(count = 1) {
-            studyStats.repsToday += count;
-            studyStats.repsTotal += count;
-            studyStats.minutesToday += Math.max(1, Math.round(count * 0.5));
-            studyStats.minutesTotal += Math.max(1, Math.round(count * 0.5));
-            saveStats();
-        }
-
-        // Navigation Switcher (Desktop & Mobile)
         function switchTab(tabId) {
-            checkDailyReset();
-            ['dashboard', 'flashcards', 'custom-phrases', 'islands', 'immersion', 'performance'].forEach(id => {
+            ['dashboard', 'flashcards', 'custom-phrases', 'islands', 'immersion', 'stats'].forEach(id => {
                 const view = document.getElementById(`view-${id}`);
                 if (view) view.classList.add('hidden');
-                
                 const navBtn = document.getElementById(`nav-${id}`);
                 if (navBtn) {
-                    navBtn.className = "w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition";
+                    navBtn.className = "w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition";
                 }
-
                 const mobBtn = document.getElementById(`mob-nav-${id}`);
                 if (mobBtn) {
-                    mobBtn.className = "flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-slate-600";
+                    mobBtn.className = "flex flex-col items-center justify-center flex-1 py-1 text-slate-400";
                 }
             });
 
             const targetView = document.getElementById(`view-${tabId}`);
             if (targetView) targetView.classList.remove('hidden');
-
+            
             const activeBtn = document.getElementById(`nav-${tabId}`);
             if (activeBtn) {
-                activeBtn.className = "w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-semibold text-brand-700 bg-brand-50 transition";
+                activeBtn.className = "w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-brand-700 bg-brand-50 transition";
+            }
+            const activeMob = document.getElementById(`mob-nav-${tabId}`);
+            if (activeMob) {
+                activeMob.className = "flex flex-col items-center justify-center flex-1 py-1 text-brand-600";
             }
 
-            const activeMobBtn = document.getElementById(`mob-nav-${tabId}`);
-            if (activeMobBtn) {
-                activeMobBtn.className = "flex flex-col items-center justify-center flex-1 py-1 text-brand-600 font-bold";
-            }
+            const mainArea = document.getElementById('mainContentArea');
+            if (mainArea) mainArea.scrollTop = 0;
+            window.scrollTo(0, 0);
 
-            if (tabId === 'dashboard') {
-                updateDashboardStatsUI();
-            }
-            if (tabId === 'flashcards') {
-                initFlashcards();
-            }
+            if (tabId === 'flashcards') initFlashcards();
             if (tabId === 'custom-phrases') {
-                renderIslandSelectOptions();
                 renderCustomPhrasesList();
+                updateIslandSelectDropdowns();
             }
-            if (tabId === 'islands') {
-                activeSelectedIsland = null;
-                renderIslandsView();
-            }
-            if (tabId === 'performance') {
-                renderPerformanceView();
-            }
+            if (tabId === 'islands') backToIslandsHome();
+            if (tabId === 'stats') renderStatsView();
         }
 
-        // Spaced Repetition Flashcards Engine
-        let activeFlashcardDeck = null;
-        let currentCardIdx = 0;
+        // SM-2 Flashcards Logic
+        let currentCardIndex = 0;
         let isCardFlipped = false;
 
         function initFlashcards() {
-            currentCardIdx = 0;
+            currentCardIndex = 0;
             isCardFlipped = false;
-            customPhrases.forEach(item => {
-                if (item.interval === undefined) item.interval = 1;
-                if (item.repetition === undefined) item.repetition = 0;
-                if (item.easeFactor === undefined) item.easeFactor = 2.5;
-            });
-            renderCurrentCard();
+            showCurrentCard();
         }
 
-        function getCurrentDeck() {
-            if (activeFlashcardDeck && activeFlashcardDeck.length > 0) {
-                return activeFlashcardDeck;
+        function showCurrentCard() {
+            const allItems = [...customPhrases, ...islands.flatMap(i => i.phrases)];
+            const list = allItems.length > 0 ? allItems : [{ en: "The tallest building in the city.", pt: "O prédio mais alto da cidade.", stars: 0 }];
+            if (currentCardIndex >= list.length) currentCardIndex = 0;
+            const item = list[currentCardIndex];
+
+            document.getElementById('cardFrontText').innerText = item.en;
+            document.getElementById('cardBackText').innerText = item.pt;
+            document.getElementById('cardProgress').innerText = `${currentCardIndex + 1} / ${list.length}`;
+            
+            const inner = document.getElementById('flashcardInner');
+            if (inner) {
+                inner.style.transform = 'rotateY(0deg)';
+                isCardFlipped = false;
             }
-            return customPhrases;
         }
 
         function flipCard() {
+            const inner = document.getElementById('flashcardInner');
             isCardFlipped = !isCardFlipped;
-            const inner = document.getElementById('flashcardInner');
-            if (inner) {
-                if (isCardFlipped) {
-                    inner.style.transform = 'rotateY(180deg)';
-                } else {
-                    inner.style.transform = 'rotateY(0deg)';
-                }
-            }
-        }
-
-        function renderCurrentCard() {
-            const deck = getCurrentDeck();
-            const frontText = document.getElementById('cardFrontText');
-            const backText = document.getElementById('cardBackText');
-            const progress = document.getElementById('cardProgress');
-            const leitnerBoxInfo = document.getElementById('leitnerBoxInfo');
-            const inner = document.getElementById('flashcardInner');
-
-            if (!frontText || !backText) return;
-
-            isCardFlipped = false;
-            if (inner) inner.style.transform = 'rotateY(0deg)';
-
-            if (deck.length === 0) {
-                frontText.innerText = "No phrases available.";
-                backText.innerText = "No phrases available.";
-                if (progress) progress.innerText = "0 / 0";
-                return;
-            }
-
-            if (currentCardIdx >= deck.length) {
-                currentCardIdx = 0;
-            }
-
-            const item = deck[currentCardIdx];
-            frontText.innerText = item.pt;
-            backText.innerText = item.en;
-            if (progress) progress.innerText = `${currentCardIdx + 1} / ${deck.length}`;
-            if (leitnerBoxInfo) {
-                leitnerBoxInfo.innerText = `SM-2 | Interval: ${item.interval || 1}d | EF: ${(item.easeFactor || 2.5).toFixed(2)}`;
-            }
-        }
-
-        function sm2Answer(quality) {
-            const deck = getCurrentDeck();
-            if (deck.length === 0) return;
-
-            const item = deck[currentCardIdx];
-            if (item.interval === undefined) item.interval = 1;
-            if (item.repetition === undefined) item.repetition = 0;
-            if (item.easeFactor === undefined) item.easeFactor = 2.5;
-
-            if (quality >= 3) {
-                if (item.repetition === 0) {
-                    item.interval = 1;
-                } else if (item.repetition === 1) {
-                    item.interval = 6;
-                } else {
-                    item.interval = Math.round(item.interval * item.easeFactor);
-                }
-                item.repetition += 1;
+            if (isCardFlipped) {
+                inner.style.transform = 'rotateY(180deg)';
             } else {
-                item.repetition = 0;
-                item.interval = 1;
+                inner.style.transform = 'rotateY(0deg)';
             }
-
-            item.easeFactor = item.easeFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
-            if (item.easeFactor < 1.3) {
-                item.easeFactor = 1.3;
-            }
-
-            recordRepetition(1);
-            saveCustomPhrases();
-
-            currentCardIdx++;
-            if (currentCardIdx >= deck.length) {
-                currentCardIdx = 0;
-            }
-            renderCurrentCard();
         }
 
-        let globalHidePt = false;
-        let globalHideEn = false;
+        function answerCard(quality) {
+            const allItems = [...customPhrases, ...islands.flatMap(i => i.phrases)];
+            if (allItems.length > 0) {
+                const item = allItems[currentCardIndex];
+                let repetition = item.repetition || 0;
+                let interval = item.interval || 1;
+                let easeFactor = item.easeFactor || 2.5;
 
-        function saveCustomPhrases() {
-            localStorage.setItem('srsmaster_phrases', JSON.stringify(customPhrases));
-            localStorage.setItem('srsmaster_islands', JSON.stringify(phraseIslands));
-            updateDashboardStatsUI();
+                const q = quality === 1 ? 0 : (quality === 2 ? 3 : (quality === 3 ? 4 : 5));
+                if (q >= 3) {
+                    if (repetition === 0) interval = 1;
+                    else if (repetition === 1) interval = 6;
+                    else interval = Math.round(interval * easeFactor);
+                    repetition++;
+                } else {
+                    repetition = 0;
+                    interval = 1;
+                }
+                easeFactor = easeFactor + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02));
+                if (easeFactor < 1.3) easeFactor = 1.3;
+
+                item.repetition = repetition;
+                item.interval = interval;
+                item.easeFactor = easeFactor;
+
+                if (quality === 4) item.stars = 5;
+                else if (quality === 3) item.stars = 4;
+                else if (quality === 2) item.stars = 3;
+                else item.stars = 1;
+
+                studyStats.totalRepsToday += 1;
+                studyStats.studyTimeToday += 1;
+                saveAll();
+            }
+
+            currentCardIndex = (currentCardIndex + 1) % allItems.length;
+            showCurrentCard();
+        }
+
+        function playPronunciation(text, lang) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = lang;
+                window.speechSynthesis.speak(utterance);
+            }
         }
 
         function toggleGlobalHide() {
-            const ptCheckbox = document.getElementById('hidePtGlobal');
-            const enCheckbox = document.getElementById('hideEnGlobal');
-            if (ptCheckbox) globalHidePt = ptCheckbox.checked;
-            if (enCheckbox) globalHideEn = enCheckbox.checked;
-
-            customPhrases.forEach(item => {
-                if (ptCheckbox) item.userHidePt = globalHidePt;
-                if (enCheckbox) item.userHideEn = globalHideEn;
+            const hidePt = document.getElementById('hidePtGlobal').checked;
+            const hideEn = document.getElementById('hideEnGlobal').checked;
+            customPhrases.forEach(p => {
+                p.hidePt = hidePt;
+                p.hideEn = hideEn;
             });
-
-            saveCustomPhrases();
-            renderCustomPhrasesList();
+            saveAll();
         }
 
-        function toggleItemHidePt(index) {
-            const item = customPhrases[index];
-            const currentVal = item.userHidePt !== null ? item.userHidePt : globalHidePt;
-            item.userHidePt = !currentVal;
-            saveCustomPhrases();
-            renderCustomPhrasesList();
-            if (activeSelectedIsland) renderIslandsView();
+        function toggleItemHide(index, lang) {
+            if (lang === 'pt') {
+                customPhrases[index].hidePt = !customPhrases[index].hidePt;
+            } else {
+                customPhrases[index].hideEn = !customPhrases[index].hideEn;
+            }
+            saveAll();
         }
 
-        function toggleItemHideEn(index) {
-            const item = customPhrases[index];
-            const currentVal = item.userHideEn !== null ? item.userHideEn : globalHideEn;
-            item.userHideEn = !currentVal;
-            saveCustomPhrases();
-            renderCustomPhrasesList();
-            if (activeSelectedIsland) renderIslandsView();
+        function setPhraseStars(index, stars) {
+            if (customPhrases[index].stars === stars) {
+                customPhrases[index].stars = 0;
+            } else {
+                customPhrases[index].stars = stars;
+            }
+            saveAll();
         }
 
-        function setPhraseStars(index, starsCount) {
-            customPhrases[index].stars = starsCount;
-            saveCustomPhrases();
-            renderCustomPhrasesList();
-            if (activeSelectedIsland) renderIslandsView();
-        }
-
-        function setPhraseIsland(index, islandName) {
-            customPhrases[index].island = islandName;
-            saveCustomPhrases();
-            renderCustomPhrasesList();
-            if (activeSelectedIsland) renderIslandsView();
-        }
-
-        function renderIslandSelectOptions() {
-            const selectEl = document.getElementById('newPhraseIsland');
-            if (!selectEl) return;
-            selectEl.innerHTML = phraseIslands.map(island => `
-                <option value="${island}">${island}</option>
-            `).join('');
+        function clearPhraseStars(index) {
+            customPhrases[index].stars = 0;
+            saveAll();
         }
 
         function addCustomPhrase(e) {
             e.preventDefault();
-            const ptInput = document.getElementById('newPtPhrase');
-            const enInput = document.getElementById('newEnPhrase');
-            const islandSelect = document.getElementById('newPhraseIsland');
+            const pt = document.getElementById('newPtPhrase').value.trim();
+            const en = document.getElementById('newEnPhrase').value.trim();
+            const islandId = document.getElementById('newPhraseIslandSelect').value;
 
-            if (!ptInput || !enInput) return;
+            if (pt && en) {
+                const newPhrase = {
+                    id: Date.now().toString(),
+                    pt,
+                    en,
+                    stars: 0,
+                    hidePt: false,
+                    hideEn: false,
+                    interval: 1,
+                    repetition: 0,
+                    easeFactor: 2.5
+                };
 
-            const pt = ptInput.value.trim();
-            const en = enInput.value.trim();
-            const island = islandSelect ? islandSelect.value : (activeSelectedIsland || "General");
+                if (islandId) {
+                    const island = islands.find(i => i.id === islandId);
+                    if (island) {
+                        island.phrases.push(newPhrase);
+                    }
+                } else {
+                    customPhrases.push(newPhrase);
+                }
 
-            if (!pt || !en) return;
-
-            customPhrases.push({
-                pt: pt,
-                en: en,
-                userHidePt: globalHidePt,
-                userHideEn: globalHideEn,
-                stars: 3,
-                island: island,
-                leitnerBox: 1
-            });
-
-            ptInput.value = '';
-            enInput.value = '';
-            saveCustomPhrases();
-            renderCustomPhrasesList();
-            if (activeSelectedIsland) renderIslandsView();
-        }
-
-        function addPhraseInIslandView(e) {
-            e.preventDefault();
-            const ptInput = document.getElementById('islandNewPt');
-            const enInput = document.getElementById('islandNewEn');
-            if (!ptInput || !enInput || !activeSelectedIsland) return;
-
-            const pt = ptInput.value.trim();
-            const en = enInput.value.trim();
-            if (!pt || !en) return;
-
-            customPhrases.push({
-                pt: pt,
-                en: en,
-                userHidePt: false,
-                userHideEn: false,
-                stars: 3,
-                island: activeSelectedIsland,
-                leitnerBox: 1
-            });
-
-            ptInput.value = '';
-            enInput.value = '';
-            saveCustomPhrases();
-            renderIslandsView();
+                document.getElementById('newPtPhrase').value = '';
+                document.getElementById('newEnPhrase').value = '';
+                document.getElementById('newPhraseIslandSelect').value = '';
+                saveAll();
+            }
         }
 
         function deleteCustomPhrase(index) {
             customPhrases.splice(index, 1);
-            saveCustomPhrases();
-            renderCustomPhrasesList();
-            if (activeSelectedIsland) renderIslandsView();
+            saveAll();
         }
 
         function renderCustomPhrasesList() {
             const container = document.getElementById('customPhrasesListContainer');
-            const countEl = document.getElementById('customPhraseCount');
-            const ptCheckbox = document.getElementById('hidePtGlobal');
-            const enCheckbox = document.getElementById('hideEnGlobal');
-
-            if (container && customPhrases.length > 0) {
-                const allPtHidden = customPhrases.every(item => item.userHidePt === true);
-                const allEnHidden = customPhrases.every(item => item.userHideEn === true);
-                if (ptCheckbox) {
-                    ptCheckbox.checked = allPtHidden;
-                    globalHidePt = allPtHidden;
-                }
-                if (enCheckbox) {
-                    enCheckbox.checked = allEnHidden;
-                    globalHideEn = allEnHidden;
-                }
-            }
-
+            document.getElementById('customPhraseCount').innerText = `${customPhrases.length} Items`;
             if (!container) return;
-
-            if (countEl) countEl.innerText = `${customPhrases.length} Items`;
 
             if (customPhrases.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-12 text-slate-400 text-xs sm:text-sm border border-dashed border-slate-200 rounded-2xl">
-                        No custom phrases added yet. Add your first phrase above!
-                    </div>
-                `;
+                container.innerHTML = `<div class="text-center py-6 text-slate-400 text-xs">No phrases in inbox. Add one above!</div>`;
                 return;
             }
 
-            container.innerHTML = customPhrases.map((item, index) => {
-                const isPtHidden = item.userHidePt !== null ? item.userHidePt : globalHidePt;
-                const isEnHidden = item.userHideEn !== null ? item.userHideEn : globalHideEn;
-
-                const ptDisplay = isPtHidden 
-                    ? `<span class="italic text-slate-400 bg-slate-100 px-2 py-1 rounded select-none blur-sm hover:blur-none transition cursor-pointer" title="Hidden">${item.pt}</span>` 
-                    : `<span>${item.pt}</span>`;
-                const enDisplay = isEnHidden 
-                    ? `<span class="italic text-slate-400 bg-slate-100 px-2 py-1 rounded select-none blur-sm hover:blur-none transition cursor-pointer" title="Hidden">${item.en}</span>` 
-                    : `<span>${item.en}</span>`;
-
-                const ptEyeIconClass = isPtHidden ? 'fa-solid fa-eye-slash text-brand-600' : 'fa-solid fa-eye text-slate-400 hover:text-slate-600';
-                const enEyeIconClass = isEnHidden ? 'fa-solid fa-eye-slash text-brand-600' : 'fa-solid fa-eye text-slate-400 hover:text-slate-600';
-
-                let starsHtml = '';
-                for (let s = 1; s <= 5; s++) {
-                    const starColor = s <= (item.stars || 3) ? 'text-amber-400 fa-solid' : 'text-slate-300 fa-regular';
-                    starsHtml += `<button type="button" onclick="setPhraseStars(${index}, ${s})" class="${starColor} fa-star text-xs hover:scale-110 transition"></button>`;
-                }
-
-                const islandOptions = phraseIslands.map(island => `
-                    <option value="${island}" ${item.island === island ? 'selected' : ''}>${island}</option>
-                `).join('');
-
-                const ptSafeText = item.pt.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-
-                return `
-                    <div class="bg-white border border-slate-200 rounded-2xl p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 shadow-sm">
-                        <div class="space-y-2 flex-1 w-full">
-                            <div class="flex flex-wrap items-center gap-2">
-                                <span class="bg-teal-50 text-teal-700 text-[11px] px-2 py-0.5 rounded-full font-bold border border-teal-100">
-                                    <i class="fa-solid fa-compass mr-1"></i>
-                                    <select onchange="setPhraseIsland(${index}, this.value)" class="bg-transparent font-bold focus:outline-none cursor-pointer">
-                                        ${islandOptions}
-                                    </select>
-                                </span>
-                                <div class="flex items-center space-x-0.5 bg-slate-50 px-2 py-0.5 rounded-lg border border-slate-200 shadow-sm">
-                                    ${starsHtml}
-                                </div>
-                            </div>
-                            <div class="space-y-1">
-                                <div class="flex items-center space-x-2 text-xs sm:text-sm font-semibold text-slate-800">
-                                    <span class="bg-brand-50 text-brand-700 text-[10px] px-1.5 py-0.5 rounded font-bold">FRONT</span>
-                                    ${ptDisplay}
-                                </div>
-                                <div class="flex items-center space-x-2 text-xs sm:text-sm text-slate-600">
-                                    <span class="bg-slate-200 text-slate-700 text-[10px] px-1.5 py-0.5 rounded font-bold">BACK</span>
-                                    ${enDisplay}
-                                </div>
+            container.innerHTML = customPhrases.map((item, idx) => `
+                <div id="custom-phrase-card-${idx}" class="bg-white border border-slate-200 rounded-2xl p-3 sm:p-4 shadow-sm space-y-3 transition-all duration-300">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md">#${idx + 1}</span>
+                        <div class="flex items-center space-x-1">
+                            <button onclick="clearPhraseStars(${idx})" class="text-slate-400 hover:text-rose-600 p-1 transition" title="Zerar estrelas">
+                                <i class="fa-solid fa-arrow-rotate-left text-xs"></i>
+                            </button>
+                            <div class="flex space-x-0.5">
+                                ${[1,2,3,4,5].map(star => `
+                                    <button onclick="setPhraseStars(${idx}, ${star})" class="text-xs ${star <= (item.stars || 0) ? 'text-amber-400' : 'text-slate-200'} hover:text-amber-500 transition p-0.5">
+                                        <i class="fa-solid fa-star"></i>
+                                    </button>
+                                `).join('')}
                             </div>
                         </div>
-                        <div class="flex items-center space-x-2 self-end md:self-center shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100 w-full md:w-auto justify-between md:justify-end">
-                            <div class="flex items-center space-x-1 bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
-                                <button type="button" onclick="recordRepetition(1); playPronunciation('${ptSafeText}', 'pt-BR')" class="p-2 text-slate-600 hover:text-brand-600 transition rounded-lg hover:bg-slate-50" title="Listen">
-                                    <i class="fa-solid fa-volume-high text-xs"></i>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2 flex-1 mr-3">
+                                <button onclick="toggleItemHide(${idx}, 'pt')" class="text-slate-400 p-0.5" title="Toggle Hide">
+                                    <i class="fa-solid fa-eye text-xs"></i>
                                 </button>
-                                <button type="button" onclick="toggleItemHidePt(${index})" class="p-2 transition rounded-lg hover:bg-slate-50" title="Toggle Hide">
-                                    <i class="${ptEyeIconClass} text-xs"></i>
-                                </button>
+                                <div class="text-sm font-bold text-slate-900 ${item.hidePt ? 'blur-sm select-none bg-slate-200 text-transparent rounded px-1' : ''}">
+                                    ${item.pt}
+                                </div>
                             </div>
-                            <button type="button" onclick="deleteCustomPhrase(${index})" class="p-2 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-xl transition" title="Delete">
-                                <i class="fa-solid fa-trash-can text-sm"></i>
+                            <button onclick="playPronunciation('${item.pt.replace(/'/g, "\\'")}', 'en-US')" class="bg-brand-50 text-brand-600 hover:bg-brand-100 w-10 h-10 rounded-xl flex items-center justify-center font-bold text-base transition shrink-0 shadow-sm" title="Listen Audio">
+                                <i class="fa-solid fa-volume-high"></i>
+                            </button>
+                        </div>
+
+                        <div class="flex items-center justify-between border-t border-slate-100 pt-2">
+                            <div class="flex items-center space-x-2 flex-1 mr-3">
+                                <button onclick="toggleItemHide(${idx}, 'en')" class="text-slate-400 p-0.5" title="Toggle Hide">
+                                    <i class="fa-solid fa-eye text-xs"></i>
+                                </button>
+                                <div class="text-xs font-medium text-slate-600 ${item.hideEn ? 'blur-sm select-none bg-slate-200 text-transparent rounded px-1' : ''}">
+                                    ${item.en}
+                                </div>
+                            </div>
+                            <button onclick="playPronunciation('${item.en.replace(/'/g, "\\'")}', 'pt-BR')" class="bg-slate-100 text-slate-600 hover:bg-slate-200 w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm transition shrink-0" title="Listen Audio">
+                                <i class="fa-solid fa-volume-high"></i>
                             </button>
                         </div>
                     </div>
-                `;
-            }).join('');
+                </div>
+            `).join('');
         }
 
-        function createNewIsland(e) {
-            e.preventDefault();
-            const input = document.getElementById('newIslandName');
-            if (!input) return;
-            const name = input.value.trim();
-            if (!name) return;
+        // Sequential Audio Playlist
+        let isPlaylistPlaying = false;
+        let playlistCurrentIndex = 0;
 
-            if (!phraseIslands.includes(name)) {
-                phraseIslands.push(name);
-                input.value = '';
-                saveCustomPhrases();
-                renderIslandsView();
-            }
-        }
-
-        function openIslandDetail(islandName) {
-            activeSelectedIsland = islandName;
-            renderIslandsView();
-        }
-
-        function backToIslandsList() {
-            activeSelectedIsland = null;
-            renderIslandsView();
-        }
-
-        function studyIsland(islandName, event) {
-            if (event) event.stopPropagation();
-            const starFilter = islandStarFilters[islandName] || 0;
-            activeFlashcardDeck = customPhrases.filter(p => {
-                const matchesIsland = (p.island || "General") === islandName;
-                const matchesStar = starFilter === 0 || (p.stars || 3) === starFilter;
-                return matchesIsland && matchesStar;
-            });
-
-            if (activeFlashcardDeck.length === 0) {
-                alert(`No phrases found in island "${islandName}" matching filters.`);
+        function toggleAudioPlaylist() {
+            if (isPlaylistPlaying) {
+                isPlaylistPlaying = false;
+                window.speechSynthesis.cancel();
+                document.getElementById('playlistPlayIcon').className = "fa-solid fa-play";
+                document.getElementById('playlistStatus').innerText = "Stopped";
                 return;
             }
-            switchTab('flashcards');
+
+            if (customPhrases.length === 0) {
+                alert("No phrases in custom list to play.");
+                return;
+            }
+
+            isPlaylistPlaying = true;
+            playlistCurrentIndex = 0;
+            document.getElementById('playlistPlayIcon').className = "fa-solid fa-pause";
+            playNextPlaylistPhrase();
         }
 
-        function filterIslandByStars(islandName, starRating) {
-            islandStarFilters[islandName] = starRating;
-            renderIslandsView();
+        function playNextPlaylistPhrase() {
+            if (!isPlaylistPlaying) return;
+            if (playlistCurrentIndex >= customPhrases.length) {
+                isPlaylistPlaying = false;
+                document.getElementById('playlistPlayIcon').className = "fa-solid fa-play";
+                document.getElementById('playlistStatus').innerText = "Completed!";
+                return;
+            }
+
+            const item = customPhrases[playlistCurrentIndex];
+            const repeatCount = parseInt(document.getElementById('phraseRepeatCount').value) || 1;
+            const pauseTime = parseInt(document.getElementById('phrasePauseTime').value) || 1000;
+            document.getElementById('playlistStatus').innerText = `Playing ${playlistCurrentIndex + 1}/${customPhrases.length}`;
+
+            const cardEl = document.getElementById(`custom-phrase-card-${playlistCurrentIndex}`);
+            if (cardEl) {
+                cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                cardEl.classList.add('ring-2', 'ring-brand-500', 'bg-indigo-50/40');
+                setTimeout(() => {
+                    cardEl.classList.remove('ring-2', 'ring-brand-500', 'bg-indigo-50/40');
+                }, 1200);
+            }
+
+            let playedReps = 0;
+            function speakRep() {
+                if (!isPlaylistPlaying) return;
+                if (playedReps < repeatCount) {
+                    playedReps++;
+                    const utterance = new SpeechSynthesisUtterance(item.pt);
+                    utterance.lang = 'en-US';
+                    utterance.onend = () => {
+                        setTimeout(speakRep, pauseTime);
+                    };
+                    window.speechSynthesis.speak(utterance);
+                } else {
+                    playlistCurrentIndex++;
+                    setTimeout(playNextPlaylistPhrase, pauseTime);
+                }
+            }
+            speakRep();
         }
 
-        function renderIslandsView() {
-            const container = document.getElementById('islandsContainer');
-            const titleEl = document.getElementById('islandsViewTitle');
-            const subtitleEl = document.getElementById('islandsViewSubtitle');
-            const topActionEl = document.getElementById('islandsTopActionContainer');
-            const breadcrumbEl = document.getElementById('islandBreadcrumb');
-            const breadcrumbNameEl = document.getElementById('activeIslandBreadcrumbName');
-            const islandHeaderStudyBtn = document.getElementById('islandHeaderStudyBtn');
+        // Language Islands Management
+        function renderIslandsHome() {
+            const container = document.getElementById('islandsGridContainer');
             if (!container) return;
 
-            if (activeSelectedIsland) {
-                if (titleEl) titleEl.innerText = `Island: ${activeSelectedIsland}`;
-                if (subtitleEl) subtitleEl.innerText = `Managing phrases and study deck for ${activeSelectedIsland}.`;
-                if (topActionEl) topActionEl.innerHTML = '';
-                if (breadcrumbEl) breadcrumbEl.classList.remove('hidden');
-                if (breadcrumbNameEl) breadcrumbNameEl.innerText = activeSelectedIsland;
-                if (islandHeaderStudyBtn) {
-                    islandHeaderStudyBtn.innerHTML = `
-                        <button onclick="studyIsland('${activeSelectedIsland}')" class="bg-teal-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow hover:bg-teal-700 transition flex items-center space-x-1">
-                            <i class="fa-solid fa-clone mr-1"></i> Study Deck
-                        </button>
-                    `;
-                }
-
-                const allPhrasesInIsland = customPhrases.filter(p => (p.island || "General") === activeSelectedIsland);
-                const activeStarFilter = islandStarFilters[activeSelectedIsland] || 0;
-                const phrasesInIsland = allPhrasesInIsland.filter(p => activeStarFilter === 0 || (p.stars || 3) === activeStarFilter);
-
-                let islandContentHtml = `
-                    <div class="bg-teal-50 border border-teal-100 p-4 rounded-2xl space-y-4 mb-4">
-                        <div class="flex flex-wrap items-center justify-between gap-3">
-                            <div class="flex items-center space-x-2 text-xs font-semibold text-teal-900 overflow-x-auto py-1">
-                                <i class="fa-solid fa-filter text-teal-600"></i>
-                                <span>Stars:</span>
-                                <div class="flex items-center space-x-1 bg-white px-2 py-1 rounded-xl border border-teal-200 shadow-sm shrink-0">
-                                    <button onclick="filterIslandByStars('${activeSelectedIsland}', 0)" class="px-2 py-0.5 rounded text-[11px] font-bold ${activeStarFilter === 0 ? 'bg-teal-600 text-white' : 'text-slate-600'}">All</button>
-                                    <button onclick="filterIslandByStars('${activeSelectedIsland}', 3)" class="px-2 py-0.5 rounded text-[11px] font-bold ${activeStarFilter === 3 ? 'bg-teal-600 text-white' : 'text-slate-600'}">★3</button>
-                                    <button onclick="filterIslandByStars('${activeSelectedIsland}', 5)" class="px-2 py-0.5 rounded text-[11px] font-bold ${activeStarFilter === 5 ? 'bg-teal-600 text-white' : 'text-slate-600'}">★5</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <form onsubmit="addPhraseInIslandView(event)" class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3 mb-4">
-                        <h3 class="text-xs sm:text-sm font-bold text-slate-800 flex items-center">
-                            <i class="fa-solid fa-plus-circle text-teal-600 mr-2"></i> Add Phrase to "${activeSelectedIsland}"
-                        </h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <textarea id="islandNewPt" rows="2" required placeholder="Front text..." class="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"></textarea>
-                            <textarea id="islandNewEn" rows="2" required placeholder="Back text..." class="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"></textarea>
-                        </div>
-                        <div class="flex justify-end">
-                            <button type="submit" class="bg-teal-600 text-white font-semibold px-5 py-2 rounded-xl text-xs sm:text-sm shadow hover:bg-teal-700 transition">
-                                <i class="fa-solid fa-check mr-1.5"></i> Save
-                            </button>
-                        </div>
-                    </form>
-                `;
-
-                if (phrasesInIsland.length === 0) {
-                    islandContentHtml += `<div class="text-center py-8 text-slate-400 text-xs sm:text-sm border border-dashed border-slate-200 rounded-2xl">No phrases found.</div>`;
-                } else {
-                    islandContentHtml += phrasesInIsland.map((item) => {
-                        const originalIndex = customPhrases.findIndex(p => p.pt === item.pt && p.en === item.en);
-                        const ptSafeText = item.pt.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-
-                        let starsHtml = '';
-                        for (let s = 1; s <= 5; s++) {
-                            const starColor = s <= (item.stars || 3) ? 'text-amber-400 fa-solid' : 'text-slate-300 fa-regular';
-                            starsHtml += `<button type="button" onclick="setPhraseStars(${originalIndex}, ${s})" class="${starColor} fa-star text-xs"></button>`;
-                        }
-
-                        return `
-                            <div class="bg-white border border-slate-200 rounded-2xl p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 shadow-sm mb-3">
-                                <div class="space-y-1.5 flex-1">
-                                    <div class="flex items-center space-x-1 bg-slate-50 px-2 py-0.5 rounded-lg border border-slate-200 w-max">
-                                        ${starsHtml}
-                                    </div>
-                                    <div class="text-xs sm:text-sm font-semibold text-slate-800">${item.pt}</div>
-                                    <div class="text-xs text-slate-500">${item.en}</div>
-                                </div>
-                                <div class="flex items-center space-x-2 self-end md:self-center shrink-0">
-                                    <button type="button" onclick="recordRepetition(1); playPronunciation('${ptSafeText}', 'pt-BR')" class="p-2 text-slate-600 hover:text-teal-600 transition rounded-lg hover:bg-slate-50">
-                                        <i class="fa-solid fa-volume-high text-xs"></i>
-                                    </button>
-                                    <button type="button" onclick="deleteCustomPhrase(${originalIndex})" class="p-2 text-rose-500 hover:text-rose-700 rounded-xl">
-                                        <i class="fa-solid fa-trash-can text-sm"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                }
-
-                container.innerHTML = islandContentHtml;
+            if (islands.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center py-6 text-slate-400 text-xs">No language islands created yet. Create one above!</div>`;
                 return;
             }
 
-            if (titleEl) titleEl.innerText = "Language Islands";
-            if (subtitleEl) subtitleEl.innerText = "Browse thematic islands. Tap any island to view and manage phrases.";
-            if (topActionEl) {
-                topActionEl.innerHTML = `
-                    <form onsubmit="createNewIsland(event)" class="flex space-x-2 w-full sm:w-auto">
-                        <input type="text" id="newIslandName" required placeholder="New Island..." class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500 flex-1">
-                        <button type="submit" class="bg-teal-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow hover:bg-teal-700 transition shrink-0">
-                            <i class="fa-solid fa-plus mr-1"></i> Add
-                        </button>
-                    </form>
-                `;
-            }
-            if (breadcrumbEl) breadcrumbEl.classList.add('hidden');
+            container.innerHTML = islands.map(island => `
+                <div onclick="openIslandDetail('${island.id}')" class="bg-white border border-slate-200 p-4 sm:p-5 rounded-2xl shadow-sm hover:shadow-md transition cursor-pointer group flex flex-col justify-between space-y-3">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="w-10 h-10 bg-brand-50 text-brand-600 rounded-xl flex items-center justify-center font-bold text-base group-hover:bg-brand-600 group-hover:text-white transition shadow-sm">
+                                <i class="fa-solid fa-map"></i>
+                            </span>
+                            <span class="text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-lg">${island.phrases.length} frases</span>
+                        </div>
+                        <h3 class="text-sm font-bold text-slate-900 group-hover:text-brand-600 transition">${island.name}</h3>
+                    </div>
+                    <div class="flex justify-between items-center text-xs font-semibold text-brand-600 pt-2 border-t border-slate-100">
+                        <span>Explorar</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </div>
+                </div>
+            `).join('');
+        }
 
-            container.innerHTML = phraseIslands.map(island => {
-                const phrasesInIsland = customPhrases.filter(p => (p.island || "General") === island);
+        function createIsland(e) {
+            e.preventDefault();
+            const name = document.getElementById('newIslandName').value.trim();
+            if (name) {
+                islands.push({
+                    id: 'island-' + Date.now(),
+                    name,
+                    phrases: []
+                });
+                document.getElementById('newIslandName').value = '';
+                saveAll();
+            }
+        }
+
+        function openIslandDetail(islandId) {
+            currentActiveIslandId = islandId;
+            document.getElementById('islandsHomeView').classList.add('hidden');
+            document.getElementById('islandDetailView').classList.remove('hidden');
+            updateIslandSelectDropdowns();
+            renderIslandDetailPhrases();
+            const mainArea = document.getElementById('mainContentArea');
+            if (mainArea) mainArea.scrollTop = 0;
+        }
+
+        function backToIslandsHome() {
+            currentActiveIslandId = null;
+            document.getElementById('islandDetailView').classList.add('hidden');
+            document.getElementById('islandsHomeView').classList.remove('hidden');
+            renderIslandsHome();
+            const mainArea = document.getElementById('mainContentArea');
+            if (mainArea) mainArea.scrollTop = 0;
+        }
+
+        function toggleIslandHide(lang) {
+            const island = islands.find(i => i.id === currentActiveIslandId);
+            if (!island) return;
+            const hide = lang === 'pt' ? document.getElementById('islandHidePt').checked : document.getElementById('islandHideEn').checked;
+            island.phrases.forEach(p => {
+                if (lang === 'pt') p.hidePt = hide;
+                else p.hideEn = hide;
+            });
+            saveAll();
+            renderIslandDetailPhrases();
+        }
+
+        function toggleIslandItemHide(phraseIndex, lang) {
+            const island = islands.find(i => i.id === currentActiveIslandId);
+            if (!island) return;
+            if (lang === 'pt') {
+                island.phrases[phraseIndex].hidePt = !island.phrases[phraseIndex].hidePt;
+            } else {
+                island.phrases[phraseIndex].hideEn = !island.phrases[phraseIndex].hideEn;
+            }
+            saveAll();
+            renderIslandDetailPhrases();
+        }
+
+        function setIslandPhraseStars(phraseIndex, stars) {
+            const island = islands.find(i => i.id === currentActiveIslandId);
+            if (!island) return;
+            if (island.phrases[phraseIndex].stars === stars) {
+                island.phrases[phraseIndex].stars = 0;
+            } else {
+                island.phrases[phraseIndex].stars = stars;
+            }
+            saveAll();
+            renderIslandDetailPhrases();
+        }
+
+        function clearIslandPhraseStars(phraseIndex) {
+            const island = islands.find(i => i.id === currentActiveIslandId);
+            if (!island) return;
+            island.phrases[phraseIndex].stars = 0;
+            saveAll();
+            renderIslandDetailPhrases();
+        }
+
+        function addPhraseToIsland(e) {
+            e.preventDefault();
+            const island = islands.find(i => i.id === currentActiveIslandId);
+            if (!island) return;
+            const pt = document.getElementById('islandNewPt').value.trim();
+            const en = document.getElementById('islandNewEn').value.trim();
+            const targetIslandId = document.getElementById('islandPhraseTargetSelect').value;
+
+            if (pt && en) {
+                const newPhrase = {
+                    id: Date.now().toString(),
+                    pt,
+                    en,
+                    stars: 0,
+                    hidePt: false,
+                    hideEn: false,
+                    interval: 1,
+                    repetition: 0,
+                    easeFactor: 2.5
+                };
+
+                if (targetIslandId) {
+                    const targetIsland = islands.find(i => i.id === targetIslandId);
+                    if (targetIsland) targetIsland.phrases.push(newPhrase);
+                } else {
+                    customPhrases.push(newPhrase);
+                }
+
+                document.getElementById('islandNewPt').value = '';
+                document.getElementById('islandNewEn').value = '';
+                saveAll();
+                renderIslandDetailPhrases();
+            }
+        }
+
+        function renderIslandDetailPhrases() {
+            const island = islands.find(i => i.id === currentActiveIslandId);
+            if (!island) return;
+            document.getElementById('currentIslandTitleHeader').innerText = island.name;
+            document.getElementById('islandSubStats').innerText = `${island.phrases.length} phrases`;
+            document.getElementById('islandStatPraticado').innerText = island.phrases.filter(p => (p.stars || 0) > 0).length;
+            document.getElementById('islandStatRep').innerText = island.phrases.length;
+            document.getElementById('islandStatDominado').innerText = `${island.phrases.filter(p => (p.stars || 0) >= 4).length}/${island.phrases.length}`;
+
+            const starFilter = document.getElementById('islandStarFilter').value;
+            const container = document.getElementById('islandPhrasesListContainer');
+            if (!container) return;
+
+            let filteredPhrases = island.phrases;
+            if (starFilter !== 'all') {
+                const targetStars = parseInt(starFilter);
+                filteredPhrases = island.phrases.filter(p => (p.stars || 0) === targetStars);
+            }
+
+            if (filteredPhrases.length === 0) {
+                container.innerHTML = `<div class="text-center py-6 text-slate-400 text-xs">Nenhuma frase encontrada com este filtro em ${island.name}.</div>`;
+                return;
+            }
+
+            container.innerHTML = filteredPhrases.map((item, idx) => {
+                const originalIndex = island.phrases.indexOf(item);
+                const badgeNum = 29 + originalIndex;
                 return `
-                    <div onclick="openIslandDetail('${island}')" class="bg-white border border-slate-200 hover:border-teal-400 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-sm cursor-pointer transition group">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-teal-50 text-teal-600 group-hover:bg-teal-600 group-hover:text-white flex items-center justify-center font-bold text-base sm:text-lg shadow-sm transition shrink-0">
-                                <i class="fa-solid fa-compass"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-slate-900 text-base sm:text-lg group-hover:text-teal-700 transition">${island}</h3>
-                                <p class="text-xs text-slate-500">${phrasesInIsland.length} phrases</p>
+                    <div id="island-phrase-card-${originalIndex}" class="bg-white border border-slate-200 rounded-2xl p-3 sm:p-4 shadow-sm space-y-3 transition-all duration-300">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md">#${badgeNum}</span>
+                            <div class="flex items-center space-x-1">
+                                <button onclick="clearIslandPhraseStars(${originalIndex})" class="text-slate-400 hover:text-rose-600 p-1 transition" title="Zerar estrelas">
+                                    <i class="fa-solid fa-arrow-rotate-left text-xs"></i>
+                                </button>
+                                <div class="flex space-x-0.5">
+                                    ${[1,2,3,4,5].map(star => `
+                                        <button onclick="setIslandPhraseStars(${originalIndex}, ${star})" class="text-xs ${star <= (item.stars || 0) ? 'text-amber-400' : 'text-slate-200'} hover:text-amber-500 transition p-0.5">
+                                            <i class="fa-solid fa-star"></i>
+                                        </button>
+                                    `).join('')}
+                                </div>
                             </div>
                         </div>
-                        <div class="flex items-center space-x-2 self-end sm:self-center">
-                            <button onclick="studyIsland('${island}', event)" class="bg-teal-50 text-teal-700 text-xs font-bold px-3 py-2 rounded-xl transition">
-                                Study
-                            </button>
-                            <span class="text-xs font-bold text-slate-400 group-hover:text-teal-600">View →</span>
+
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2 flex-1 mr-3">
+                                    <button onclick="toggleIslandItemHide(${originalIndex}, 'pt')" class="text-slate-400 p-0.5" title="Toggle Hide">
+                                        <i class="fa-solid fa-eye text-xs"></i>
+                                    </button>
+                                    <div class="text-sm font-bold text-slate-900 ${item.hidePt ? 'blur-sm select-none bg-slate-200 text-transparent rounded px-1' : ''}">
+                                        ${item.pt}
+                                    </div>
+                                </div>
+                                <button onclick="playPronunciation('${item.pt.replace(/'/g, "\\'")}', 'en-US')" class="bg-brand-50 text-brand-600 hover:bg-brand-100 w-10 h-10 rounded-xl flex items-center justify-center font-bold text-base transition shrink-0 shadow-sm" title="Listen Audio">
+                                    <i class="fa-solid fa-volume-high"></i>
+                                </button>
+                            </div>
+
+                            <div class="flex items-center justify-between border-t border-slate-100 pt-2">
+                                <div class="flex items-center space-x-2 flex-1 mr-3">
+                                    <button onclick="toggleIslandItemHide(${originalIndex}, 'en')" class="text-slate-400 p-0.5" title="Toggle Hide">
+                                        <i class="fa-solid fa-eye text-xs"></i>
+                                    </button>
+                                    <div class="text-xs font-medium text-slate-600 ${item.hideEn ? 'blur-sm select-none bg-slate-200 text-transparent rounded px-1' : ''}">
+                                        ${item.en}
+                                    </div>
+                                </div>
+                                <button onclick="playPronunciation('${item.en.replace(/'/g, "\\'")}', 'pt-BR')" class="bg-slate-100 text-slate-600 hover:bg-slate-200 w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm transition shrink-0" title="Listen Audio">
+                                    <i class="fa-solid fa-volume-high"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `;
             }).join('');
         }
 
-        function renderPerformanceView() {
-            const countLearned = document.getElementById('perfCountLearned');
-            const countReview = document.getElementById('perfCountReview');
-            const countToLearn = document.getElementById('perfCountToLearn');
-            const countTotal = document.getElementById('perfCountTotal');
-            const overallScore = document.getElementById('perfOverallScore');
-            const starList = document.getElementById('perfStarBreakdownList');
-            const barLearned = document.getElementById('barLearned');
-            const barReview = document.getElementById('barReview');
-            const barToLearn = document.getElementById('barToLearn');
-            const masteryPercent = document.getElementById('perfMasteryPercent');
+        let isIslandPlaylistPlaying = false;
+        let islandPlaylistIndex = 0;
 
-            const total = customPhrases.length;
-            const learned = customPhrases.filter(p => (p.stars || 3) >= 4).length;
-            const inReview = customPhrases.filter(p => (p.stars || 3) === 3).length;
-            const toLearn = customPhrases.filter(p => (p.stars || 3) <= 2).length;
+        function toggleIslandAudioPlaylist() {
+            if (isIslandPlaylistPlaying) {
+                isIslandPlaylistPlaying = false;
+                window.speechSynthesis.cancel();
+                document.getElementById('islandPlaylistPlayIcon').className = "fa-solid fa-play";
+                document.getElementById('islandPlaylistStatus').innerText = "Stopped";
+                return;
+            }
 
-            if (countTotal) countTotal.innerText = total;
-            if (countLearned) countLearned.innerText = learned;
-            if (countReview) countReview.innerText = inReview;
-            if (countToLearn) countToLearn.innerText = toLearn;
+            const island = islands.find(i => i.id === currentActiveIslandId);
+            if (!island || island.phrases.length === 0) {
+                alert("Nenhuma frase nesta ilha para tocar.");
+                return;
+            }
 
-            let totalStarSum = 0;
-            customPhrases.forEach(p => {
-                totalStarSum += (p.stars || 3);
+            isIslandPlaylistPlaying = true;
+            islandPlaylistIndex = 0;
+            document.getElementById('islandPlaylistPlayIcon').className = "fa-solid fa-pause";
+            playNextIslandPlaylistPhrase();
+        }
+
+        function playNextIslandPlaylistPhrase() {
+            if (!isIslandPlaylistPlaying) return;
+            const island = islands.find(i => i.id === currentActiveIslandId);
+            if (!island || islandPlaylistIndex >= island.phrases.length) {
+                isIslandPlaylistPlaying = false;
+                document.getElementById('islandPlaylistPlayIcon').className = "fa-solid fa-play";
+                document.getElementById('islandPlaylistStatus').innerText = "Completed!";
+                return;
+            }
+
+            const item = island.phrases[islandPlaylistIndex];
+            const repeatCount = parseInt(document.getElementById('islandRepeatCount').value) || 1;
+            const pauseTime = parseInt(document.getElementById('islandPauseTime').value) || 1000;
+            document.getElementById('islandPlaylistStatus').innerText = `Playing ${islandPlaylistIndex + 1}/${island.phrases.length}`;
+
+            const cardEl = document.getElementById(`island-phrase-card-${islandPlaylistIndex}`);
+            if (cardEl) {
+                cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                cardEl.classList.add('ring-2', 'ring-brand-500', 'bg-indigo-50/40');
+                setTimeout(() => {
+                    cardEl.classList.remove('ring-2', 'ring-brand-500', 'bg-indigo-50/40');
+                }, 1200);
+            }
+
+            let playedReps = 0;
+            function speakRep() {
+                if (!isIslandPlaylistPlaying) return;
+                if (playedReps < repeatCount) {
+                    playedReps++;
+                    const utterance = new SpeechSynthesisUtterance(item.pt);
+                    utterance.lang = 'en-US';
+                    utterance.onend = () => {
+                        setTimeout(speakRep, pauseTime);
+                    };
+                    window.speechSynthesis.speak(utterance);
+                } else {
+                    islandPlaylistIndex++;
+                    setTimeout(playNextIslandPlaylistPhrase, pauseTime);
+                }
+            }
+            speakRep();
+        }
+
+        function translateSentence(el, pt, en) {
+            document.getElementById('transPt').innerText = pt;
+            document.getElementById('transEn').innerText = en;
+            document.getElementById('translationBox').classList.remove('hidden');
+            playPronunciation(pt, 'en-US');
+        }
+
+        function renderStatsView() {
+            const allItems = [...customPhrases, ...islands.flatMap(i => i.phrases)];
+            let learned = 0, inReview = 0, toLearn = 0;
+            const starCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0, 0: 0 };
+
+            allItems.forEach(item => {
+                const s = item.stars || 0;
+                starCounts[s] = (starCounts[s] || 0) + 1;
+                if (s >= 4) learned++;
+                else if (s === 3) inReview++;
+                else toLearn++;
             });
 
-            const maxPossibleStars = total > 0 ? total * 5 : 1;
-            const accuracyVal = Math.round((totalStarSum / maxPossibleStars) * 100);
+            document.getElementById('learnedCardsCount').innerText = learned;
+            document.getElementById('inReviewCardsCount').innerText = inReview;
+            document.getElementById('toLearnCardsCount').innerText = toLearn;
 
-            if (overallScore) overallScore.innerText = `Accuracy: ${accuracyVal}%`;
-            if (masteryPercent) masteryPercent.innerText = `${accuracyVal}% Mastered Score`;
+            if (allItems.length > 0) {
+                const totalStars = allItems.reduce((acc, item) => acc + (item.stars || 0), 0);
+                const mastery = Math.round((totalStars / (allItems.length * 5)) * 100);
+                document.getElementById('overallMasteryScore').innerText = mastery + '%';
+            } else {
+                document.getElementById('overallMasteryScore').innerText = '0%';
+            }
 
-            const learnedPct = total > 0 ? (learned / total) * 100 : 0;
-            const reviewPct = total > 0 ? (inReview / total) * 100 : 0;
-            const toLearnPct = total > 0 ? (toLearn / total) * 100 : 0;
-
-            if (barLearned) barLearned.style.width = `${learnedPct}%`;
-            if (barReview) barReview.style.width = `${reviewPct}%`;
-            if (barToLearn) barToLearn.style.width = `${toLearnPct}%`;
-
-            if (starList) {
-                const starCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-                customPhrases.forEach(p => {
-                    const s = p.stars || 3;
-                    if (starCounts[s] !== undefined) starCounts[s]++;
-                });
-
-                starList.innerHTML = [5, 4, 3, 2, 1].map(starNum => {
-                    const count = starCounts[starNum];
-                    const pct = total > 0 ? Math.round((count / total) * 100) : 0;
-                    let starColor = 'text-amber-400';
-                    let labelText = starNum === 5 ? 'Mastered / Fluent' : starNum === 4 ? 'Very Familiar' : starNum === 3 ? 'In Review' : starNum === 2 ? 'Needs Practice' : 'Beginner / Hard';
-
-                    let starsHTML = '';
-                    for (let i = 1; i <= 5; i++) {
-                        starsHTML += `<i class="${i <= starNum ? 'fa-solid text-amber-400' : 'fa-regular text-slate-300'} fa-star text-xs"></i>`;
-                    }
-
+            const barsContainer = document.getElementById('starBreakdownBars');
+            if (barsContainer) {
+                barsContainer.innerHTML = [5, 4, 3, 2, 1, 0].map(star => {
+                    const count = starCounts[star] || 0;
+                    const pct = allItems.length > 0 ? Math.round((count / allItems.length) * 100) : 0;
+                    const label = star > 0 ? `${star} Star${star > 1 ? 's' : ''}` : 'Unrated (0)';
                     return `
-                        <div class="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-                            <div class="flex items-center space-x-3">
-                                <div class="flex items-center space-x-0.5">${starsHTML}</div>
-                                <span class="text-xs font-bold text-slate-700">${starNum} Stars (${labelText})</span>
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-[11px] font-semibold text-slate-700">
+                                <span>${label}</span>
+                                <span>${count} phrases (${pct}%)</span>
                             </div>
-                            <div class="flex items-center space-x-3">
-                                <span class="text-xs font-bold text-slate-500">${count} cards (${pct}%)</span>
+                            <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                                <div class="bg-brand-600 h-full rounded-full transition-all" style="width: ${pct}%"></div>
                             </div>
                         </div>
                     `;
@@ -1372,17 +1449,12 @@
             }
         }
 
-        playPronunciation = function(text, lang) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                setTimeout(() => {
-                    const utterance = new SpeechSynthesisUtterance(text);
-                    utterance.lang = lang;
-                    utterance.rate = 0.9;
-                    window.speechSynthesis.speak(utterance);
-                }, 100);
-            }
-        }
+        window.onload = function() {
+            updateDashboardStats();
+            renderCustomPhrasesList();
+            renderIslandsHome();
+            updateIslandSelectDropdowns();
+        };
     </script>
 </body>
 </html>
