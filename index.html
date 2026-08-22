@@ -69,7 +69,7 @@
                 <!-- Streak Counter -->
                 <div class="flex items-center bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg text-amber-700 text-xs font-semibold shadow-sm">
                     <i class="fa-solid fa-fire mr-1 text-amber-500"></i>
-                    <span id="streakCount">0</span>d
+                    <span id="streakCount">1</span>d
                 </div>
 
                 <!-- User Profile Avatar -->
@@ -178,7 +178,7 @@
                     <!-- Regularity Footer -->
                     <div class="flex items-center space-x-2 text-xs text-slate-500 font-medium pt-1">
                         <i class="fa-regular fa-calendar text-slate-400"></i>
-                        <span>Regularidade: 0 dos últimos 7 dias</span>
+                        <span>Regularidade: 1 dos últimos 7 dias</span>
                     </div>
                 </div>
 
@@ -361,7 +361,7 @@
                         <div class="flex items-center space-x-2 pt-1">
                             <label class="text-[11px] font-semibold text-slate-600 whitespace-nowrap">Assign to Island:</label>
                             <select id="newPhraseIslandSelect" class="flex-1 bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:outline-none">
-                                <option value="">Inbox (General)</option>
+                                <option value="">Default (Inbox)</option>
                             </select>
                         </div>
                         <div class="flex justify-end pt-1">
@@ -409,12 +409,17 @@
                 <div id="islandDetailView" class="hidden space-y-4">
                     <div class="bg-white border border-slate-200 rounded-3xl p-4 sm:p-6 shadow-sm space-y-4">
                         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                            <button onclick="backToIslandsHome()" class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 hover:bg-slate-200 transition shadow-sm">
+                            <button onclick="backToIslandsHome()" class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 hover:bg-slate-200 transition shadow-sm" title="Voltar para a lista">
                                 <i class="fa-solid fa-chevron-left text-sm"></i>
                             </button>
-                            <div class="text-center">
+                            <div class="text-center flex items-center space-x-2">
                                 <h2 id="currentIslandTitleHeader" class="text-lg font-bold text-slate-900">Island Name</h2>
-                                <p class="text-[11px] font-semibold text-slate-400" id="islandSubStats">0 phrases</p>
+                                <button id="renameIslandBtn" onclick="promptRenameIsland()" class="text-slate-400 hover:text-brand-600 text-xs p-1" title="Renomear Ilha">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button id="deleteIslandBtn" onclick="promptDeleteIsland()" class="text-slate-400 hover:text-rose-600 text-xs p-1" title="Apagar Ilha">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
                             </div>
                             <div class="w-9"></div>
                         </div>
@@ -483,7 +488,7 @@
                             </div>
                         </div>
 
-                        <!-- Add Phrase to Island Form with Compact Island Selector -->
+                        <!-- Add Phrase to Island Form (Assign to Island pre-filled with current island) -->
                         <form onsubmit="addPhraseToIsland(event)" class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
                             <h3 class="text-xs font-bold text-slate-800 flex items-center">
                                 <i class="fa-solid fa-plus-circle text-brand-600 mr-2"></i> Add Phrase to Island
@@ -638,6 +643,44 @@
         </div>
     </div>
 
+    <!-- Confirmation Modal for Phrase Deletion -->
+    <div id="deleteModal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 text-center animate-in fade-in zoom-in duration-200">
+            <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-trash"></i>
+            </div>
+            <h3 class="text-base font-bold text-slate-900">Excluir Frase?</h3>
+            <p class="text-xs text-slate-500">Esta ação não pode ser desfeita. Tem certeza de que deseja apagar esta frase?</p>
+            <div class="grid grid-cols-2 gap-2 pt-2">
+                <button onclick="closeDeleteModal()" class="bg-slate-100 text-slate-700 font-semibold py-2.5 rounded-xl text-xs hover:bg-slate-200 transition">
+                    Cancelar
+                </button>
+                <button id="confirmDeleteBtn" onclick="confirmDeletePhrase()" class="bg-rose-600 text-white font-semibold py-2.5 rounded-xl text-xs shadow hover:bg-rose-700 transition">
+                    Excluir
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal for Island Deletion -->
+    <div id="deleteIslandModal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 text-center animate-in fade-in zoom-in duration-200">
+            <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="text-base font-bold text-slate-900">Excluir Ilha?</h3>
+            <p class="text-xs text-slate-500">Deseja apagar esta ilha? As frases contidas nela serão movidas para a Default (Inbox).</p>
+            <div class="grid grid-cols-2 gap-2 pt-2">
+                <button onclick="closeDeleteIslandModal()" class="bg-slate-100 text-slate-700 font-semibold py-2.5 rounded-xl text-xs hover:bg-slate-200 transition">
+                    Cancelar
+                </button>
+                <button onclick="confirmDeleteIsland()" class="bg-rose-600 text-white font-semibold py-2.5 rounded-xl text-xs shadow hover:bg-rose-700 transition">
+                    Excluir Ilha
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Mobile Bottom Navigation Bar (iPhone Optimized) -->
     <nav class="md:hidden bg-white border-t border-slate-200 fixed bottom-0 left-0 right-0 z-50 flex justify-around items-center h-16 px-2 shadow-lg">
         <button onclick="switchTab('dashboard')" id="mob-nav-dashboard" class="flex flex-col items-center justify-center flex-1 py-1 text-brand-600">
@@ -663,31 +706,14 @@
     </nav>
 
     <script>
-        // Data Store & State Initialization (Stats completely zeroed)
+        // Data Store & State Initialization
         let customPhrases = JSON.parse(localStorage.getItem('srs_master_phrases')) || [
             { id: '1', pt: "The tallest building in the city.", en: "O prédio mais alto da cidade.", stars: 0, hidePt: false, hideEn: false, interval: 1, repetition: 0, easeFactor: 2.5 },
-            { id: '2', pt: "I would like to buy a round-trip ticket.", en: "Eu gostaria de comprar uma passagem de ida e volta.", stars: 0, hidePt: false, hideEn: false, interval: 3, repetition: 1, easeFactor: 2.5 },
+            { id: '2', pt: "I would like to buy a round-trip ticket.", en: "O gostaria de comprar uma passagem de ida e volta.", stars: 0, hidePt: false, hideEn: false, interval: 3, repetition: 1, easeFactor: 2.5 },
             { id: '3', pt: "Please, where is the nearest train station?", en: "Por favor, onde fica a estação de trem mais próxima?", stars: 0, hidePt: false, hideEn: false, interval: 6, repetition: 2, easeFactor: 2.5 }
         ];
 
-        let islands = JSON.parse(localStorage.getItem('srs_master_islands')) || [
-            { 
-                id: 'island-1', 
-                name: 'Sugestão de hoje', 
-                phrases: [ 
-                    { id: 't1', pt: 'I wake up at seven.', en: 'Eu acordo às sete.', stars: 0, hidePt: false, hideEn: false },
-                    { id: 't2', pt: 'Hello, how is your work?', en: 'Olá, como vai o trabalho?', stars: 0, hidePt: false, hideEn: false },
-                    { id: 't3', pt: "Let's go now.", en: 'Vamos agora.', stars: 0, hidePt: false, hideEn: false }
-                ] 
-            },
-            { 
-                id: 'island-2', 
-                name: 'Food & Dining', 
-                phrases: [ 
-                    { id: 'f1', pt: 'The check, please.', en: 'A conta, por favor.', stars: 0, hidePt: false, hideEn: false } 
-                ] 
-            }
-        ];
+        let islands = JSON.parse(localStorage.getItem('srs_master_islands')) || [];
 
         let studyStats = JSON.parse(localStorage.getItem('srs_master_stats')) || {
             studyTimeToday: 0,
@@ -697,11 +723,13 @@
             goalReps: 200
         };
 
-        let currentActiveIslandId = null;
+        let currentActiveIslandId = null; // null means home list of islands
+        let deleteTarget = null; // { type: 'custom' | 'islandPhrase', index: number }
 
         function recordPlayAction() {
             studyStats.totalRepsToday = (studyStats.totalRepsToday || 0) + 1;
             studyStats.studyTimeToday = (studyStats.studyTimeToday || 0) + 1;
+            if (studyStats.streak === 0) studyStats.streak = 1;
             saveAll();
         }
 
@@ -713,7 +741,9 @@
             renderCustomPhrasesList();
             renderIslandsHome();
             updateIslandSelectDropdowns();
-            if (currentActiveIslandId) renderIslandDetailPhrases();
+            if (currentActiveIslandId) {
+                renderIslandDetailPhrases();
+            }
             renderStatsView();
         }
 
@@ -778,15 +808,15 @@
         }
 
         function updateIslandSelectDropdowns() {
-            const opts = `<option value="">Inbox (General)</option>` + 
-                islands.map(i => `<option value="${i.id}">${i.name}</option>`).join('');
+            const opts = `<option value="">Default (Inbox)</option>` + 
+                islands.map(i => `<option value="${i.id}" ${i.id === currentActiveIslandId ? 'selected' : ''}>${i.name}</option>`).join('');
             
             const sel1 = document.getElementById('newPhraseIslandSelect');
             if (sel1) sel1.innerHTML = opts;
 
             const sel2 = document.getElementById('islandPhraseTargetSelect');
             if (sel2) {
-                sel2.innerHTML = `<option value="">Inbox (General)</option>` + 
+                sel2.innerHTML = `<option value="">Default (Inbox)</option>` + 
                     islands.map(i => `<option value="${i.id}" ${i.id === currentActiveIslandId ? 'selected' : ''}>${i.name}</option>`).join('');
             }
         }
@@ -826,8 +856,78 @@
                 renderCustomPhrasesList();
                 updateIslandSelectDropdowns();
             }
-            if (tabId === 'islands') backToIslandsHome();
+            if (tabId === 'islands') {
+                backToIslandsHome(); // Menu inferior sempre vai para a lista principal de ilhas
+            }
             if (tabId === 'stats') renderStatsView();
+        }
+
+        // Delete Confirmation Modal handlers
+        function promptDeleteCustom(index) {
+            deleteTarget = { type: 'custom', index };
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
+
+        function promptDeleteIslandPhrase(index) {
+            deleteTarget = { type: 'islandPhrase', index };
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            deleteTarget = null;
+            document.getElementById('deleteModal').classList.add('hidden');
+        }
+
+        function confirmDeletePhrase() {
+            if (!deleteTarget) return;
+            if (deleteTarget.type === 'custom') {
+                customPhrases.splice(deleteTarget.index, 1);
+            } else if (deleteTarget.type === 'islandPhrase') {
+                if (currentActiveIslandId === 'default') {
+                    customPhrases.splice(deleteTarget.index, 1);
+                } else {
+                    const island = islands.find(i => i.id === currentActiveIslandId);
+                    if (island) {
+                        island.phrases.splice(deleteTarget.index, 1);
+                    }
+                }
+            }
+            closeDeleteModal();
+            saveAll();
+        }
+
+        // Rename & Delete Island Handlers
+        function promptRenameIsland() {
+            if (currentActiveIslandId === 'default') return;
+            const island = islands.find(i => i.id === currentActiveIslandId);
+            if (!island) return;
+            const newName = prompt("Renomear Ilha:", island.name);
+            if (newName && newName.trim()) {
+                island.name = newName.trim();
+                saveAll();
+            }
+        }
+
+        function promptDeleteIsland() {
+            if (currentActiveIslandId === 'default') return;
+            document.getElementById('deleteIslandModal').classList.remove('hidden');
+        }
+
+        function closeDeleteIslandModal() {
+            document.getElementById('deleteIslandModal').classList.add('hidden');
+        }
+
+        function confirmDeleteIsland() {
+            if (!currentActiveIslandId || currentActiveIslandId === 'default') return;
+            const index = islands.findIndex(i => i.id === currentActiveIslandId);
+            if (index !== -1) {
+                const island = islands[index];
+                customPhrases.push(...island.phrases);
+                islands.splice(index, 1);
+            }
+            closeDeleteIslandModal();
+            backToIslandsHome();
+            saveAll();
         }
 
         // SM-2 Flashcards Logic
@@ -982,11 +1082,6 @@
             }
         }
 
-        function deleteCustomPhrase(index) {
-            customPhrases.splice(index, 1);
-            saveAll();
-        }
-
         function renderCustomPhrasesList() {
             const container = document.getElementById('customPhrasesListContainer');
             document.getElementById('customPhraseCount').innerText = `${customPhrases.length} Items`;
@@ -998,9 +1093,12 @@
             }
 
             container.innerHTML = customPhrases.map((item, idx) => `
-                <div id="custom-phrase-card-${idx}" class="bg-white border border-slate-200 rounded-2xl p-3 sm:p-4 shadow-sm space-y-3 transition-all duration-300">
+                <div id="custom-phrase-card-${idx}" class="relative overflow-hidden bg-white border border-slate-200 rounded-2xl p-3 sm:p-4 shadow-sm space-y-3 transition-all duration-300">
                     <div class="flex items-center justify-between">
-                        <span class="text-[11px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md">#${idx + 1}</span>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-[11px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md">#${idx + 1}</span>
+                            <span class="text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">Default</span>
+                        </div>
                         <div class="flex items-center space-x-1">
                             <button onclick="clearPhraseStars(${idx})" class="text-slate-400 hover:text-rose-600 p-1 transition" title="Zerar estrelas">
                                 <i class="fa-solid fa-arrow-rotate-left text-xs"></i>
@@ -1012,6 +1110,9 @@
                                     </button>
                                 `).join('')}
                             </div>
+                            <button onclick="promptDeleteCustom(${idx})" class="text-slate-400 hover:text-rose-600 p-1.5 transition ml-2" title="Excluir frase">
+                                <i class="fa-solid fa-trash text-xs"></i>
+                            </button>
                         </div>
                     </div>
 
@@ -1120,28 +1221,45 @@
             const container = document.getElementById('islandsGridContainer');
             if (!container) return;
 
-            if (islands.length === 0) {
-                container.innerHTML = `<div class="col-span-full text-center py-6 text-slate-400 text-xs">No language islands created yet. Create one above!</div>`;
-                return;
-            }
-
-            container.innerHTML = islands.map(island => `
-                <div onclick="openIslandDetail('${island.id}')" class="bg-white border border-slate-200 p-4 sm:p-5 rounded-2xl shadow-sm hover:shadow-md transition cursor-pointer group flex flex-col justify-between space-y-3">
+            let html = `
+                <div onclick="openIslandDetail('default')" class="bg-brand-50 border-2 border-brand-500 p-4 sm:p-5 rounded-2xl shadow-sm hover:shadow-md transition cursor-pointer group flex flex-col justify-between space-y-3">
                     <div>
                         <div class="flex items-center justify-between mb-2">
-                            <span class="w-10 h-10 bg-brand-50 text-brand-600 rounded-xl flex items-center justify-center font-bold text-base group-hover:bg-brand-600 group-hover:text-white transition shadow-sm">
-                                <i class="fa-solid fa-map"></i>
+                            <span class="w-10 h-10 bg-brand-600 text-white rounded-xl flex items-center justify-center font-bold text-base shadow-sm">
+                                <i class="fa-solid fa-inbox"></i>
                             </span>
-                            <span class="text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-lg">${island.phrases.length} frases</span>
+                            <span class="text-[11px] font-bold text-brand-700 bg-brand-100 px-2 py-0.5 rounded-lg">${customPhrases.length} frases</span>
                         </div>
-                        <h3 class="text-sm font-bold text-slate-900 group-hover:text-brand-600 transition">${island.name}</h3>
+                        <h3 class="text-sm font-bold text-slate-900 group-hover:text-brand-600 transition">Default (Inbox)</h3>
                     </div>
-                    <div class="flex justify-between items-center text-xs font-semibold text-brand-600 pt-2 border-t border-slate-100">
+                    <div class="flex justify-between items-center text-xs font-semibold text-brand-600 pt-2 border-t border-brand-100">
                         <span>Explorar</span>
                         <i class="fa-solid fa-arrow-right text-xs"></i>
                     </div>
                 </div>
-            `).join('');
+            `;
+
+            if (islands.length > 0) {
+                html += islands.map(island => `
+                    <div onclick="openIslandDetail('${island.id}')" class="bg-white border border-slate-200 p-4 sm:p-5 rounded-2xl shadow-sm hover:shadow-md transition cursor-pointer group flex flex-col justify-between space-y-3">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="w-10 h-10 bg-brand-50 text-brand-600 rounded-xl flex items-center justify-center font-bold text-base group-hover:bg-brand-600 group-hover:text-white transition shadow-sm">
+                                    <i class="fa-solid fa-map"></i>
+                                </span>
+                                <span class="text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-lg">${island.phrases.length} frases</span>
+                            </div>
+                            <h3 class="text-sm font-bold text-slate-900 group-hover:text-brand-600 transition">${island.name}</h3>
+                        </div>
+                        <div class="flex justify-between items-center text-xs font-semibold text-brand-600 pt-2 border-t border-slate-100">
+                            <span>Explorar</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            container.innerHTML = html;
         }
 
         function createIsland(e) {
@@ -1162,6 +1280,17 @@
             currentActiveIslandId = islandId;
             document.getElementById('islandsHomeView').classList.add('hidden');
             document.getElementById('islandDetailView').classList.remove('hidden');
+            
+            const renameBtn = document.getElementById('renameIslandBtn');
+            const deleteBtn = document.getElementById('deleteIslandBtn');
+            if (islandId === 'default') {
+                if (renameBtn) renameBtn.classList.add('hidden');
+                if (deleteBtn) deleteBtn.classList.add('hidden');
+            } else {
+                if (renameBtn) renameBtn.classList.remove('hidden');
+                if (deleteBtn) deleteBtn.classList.remove('hidden');
+            }
+
             updateIslandSelectDropdowns();
             renderIslandDetailPhrases();
             const mainArea = document.getElementById('mainContentArea');
@@ -1178,6 +1307,10 @@
         }
 
         function toggleIslandHide(lang) {
+            if (currentActiveIslandId === 'default') {
+                toggleGlobalHide();
+                return;
+            }
             const island = islands.find(i => i.id === currentActiveIslandId);
             if (!island) return;
             const hide = lang === 'pt' ? document.getElementById('islandHidePt').checked : document.getElementById('islandHideEn').checked;
@@ -1190,6 +1323,10 @@
         }
 
         function toggleIslandItemHide(phraseIndex, lang) {
+            if (currentActiveIslandId === 'default') {
+                toggleItemHide(phraseIndex, lang);
+                return;
+            }
             const island = islands.find(i => i.id === currentActiveIslandId);
             if (!island) return;
             if (lang === 'pt') {
@@ -1202,6 +1339,10 @@
         }
 
         function setIslandPhraseStars(phraseIndex, stars) {
+            if (currentActiveIslandId === 'default') {
+                setPhraseStars(phraseIndex, stars);
+                return;
+            }
             const island = islands.find(i => i.id === currentActiveIslandId);
             if (!island) return;
             if (island.phrases[phraseIndex].stars === stars) {
@@ -1214,6 +1355,10 @@
         }
 
         function clearIslandPhraseStars(phraseIndex) {
+            if (currentActiveIslandId === 'default') {
+                clearPhraseStars(phraseIndex);
+                return;
+            }
             const island = islands.find(i => i.id === currentActiveIslandId);
             if (!island) return;
             island.phrases[phraseIndex].stars = 0;
@@ -1223,8 +1368,6 @@
 
         function addPhraseToIsland(e) {
             e.preventDefault();
-            const island = islands.find(i => i.id === currentActiveIslandId);
-            if (!island) return;
             const pt = document.getElementById('islandNewPt').value.trim();
             const en = document.getElementById('islandNewEn').value.trim();
             const targetIslandId = document.getElementById('islandPhraseTargetSelect').value;
@@ -1242,7 +1385,7 @@
                     easeFactor: 2.5
                 };
 
-                if (targetIslandId) {
+                if (targetIslandId && targetIslandId !== 'default') {
                     const targetIsland = islands.find(i => i.id === targetIslandId);
                     if (targetIsland) targetIsland.phrases.push(newPhrase);
                 } else {
@@ -1252,11 +1395,97 @@
                 document.getElementById('islandNewPt').value = '';
                 document.getElementById('islandNewEn').value = '';
                 saveAll();
-                renderIslandDetailPhrases();
+                if (currentActiveIslandId) {
+                    renderIslandDetailPhrases();
+                }
             }
         }
 
         function renderIslandDetailPhrases() {
+            if (currentActiveIslandId === 'default') {
+                document.getElementById('currentIslandTitleHeader').innerText = "Default (Inbox)";
+                document.getElementById('islandSubStats').innerText = `${customPhrases.length} phrases`;
+                document.getElementById('islandStatPraticado').innerText = customPhrases.filter(p => (p.stars || 0) > 0).length;
+                document.getElementById('islandStatRep').innerText = customPhrases.length;
+                document.getElementById('islandStatDominado').innerText = `${customPhrases.filter(p => (p.stars || 0) >= 4).length}/${customPhrases.length}`;
+
+                const starFilter = document.getElementById('islandStarFilter').value;
+                const container = document.getElementById('islandPhrasesListContainer');
+                if (!container) return;
+
+                let filteredPhrases = customPhrases;
+                if (starFilter !== 'all') {
+                    const targetStars = parseInt(starFilter);
+                    filteredPhrases = customPhrases.filter(p => (p.stars || 0) === targetStars);
+                }
+
+                if (filteredPhrases.length === 0) {
+                    container.innerHTML = `<div class="text-center py-6 text-slate-400 text-xs">Nenhuma frase encontrada com este filtro em Default.</div>`;
+                    return;
+                }
+
+                container.innerHTML = filteredPhrases.map((item, idx) => {
+                    const originalIndex = customPhrases.indexOf(item);
+                    const badgeNum = 29 + originalIndex;
+                    return `
+                        <div id="island-phrase-card-${originalIndex}" class="bg-white border border-slate-200 rounded-2xl p-3 sm:p-4 shadow-sm space-y-3 transition-all duration-300">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-[11px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md">#${badgeNum}</span>
+                                    <span class="text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">Default (Inbox)</span>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <button onclick="clearIslandPhraseStars(${originalIndex})" class="text-slate-400 hover:text-rose-600 p-1 transition" title="Zerar estrelas">
+                                        <i class="fa-solid fa-arrow-rotate-left text-xs"></i>
+                                    </button>
+                                    <div class="flex space-x-0.5">
+                                        ${[1,2,3,4,5].map(star => `
+                                            <button onclick="setIslandPhraseStars(${originalIndex}, ${star})" class="text-xs ${star <= (item.stars || 0) ? 'text-amber-400' : 'text-slate-200'} hover:text-amber-500 transition p-0.5">
+                                                <i class="fa-solid fa-star"></i>
+                                            </button>
+                                        `).join('')}
+                                    </div>
+                                    <button onclick="promptDeleteCustom(${originalIndex})" class="text-slate-400 hover:text-rose-600 p-1.5 transition ml-2" title="Excluir frase">
+                                        <i class="fa-solid fa-trash text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2 flex-1 mr-3">
+                                        <button onclick="toggleIslandItemHide(${originalIndex}, 'pt')" class="text-slate-400 p-0.5" title="Toggle Hide">
+                                            <i class="fa-solid fa-eye text-xs"></i>
+                                        </button>
+                                        <div class="text-sm font-bold text-slate-900 ${item.hidePt ? 'blur-sm select-none bg-slate-200 text-transparent rounded px-1' : ''}">
+                                            ${item.pt}
+                                        </div>
+                                    </div>
+                                    <button onclick="playPronunciation('${item.pt.replace(/'/g, "\\'")}', 'en-US')" class="bg-brand-50 text-brand-600 hover:bg-brand-100 w-10 h-10 rounded-xl flex items-center justify-center font-bold text-base transition shrink-0 shadow-sm" title="Listen Audio">
+                                        <i class="fa-solid fa-volume-high"></i>
+                                    </button>
+                                </div>
+
+                                <div class="flex items-center justify-between border-t border-slate-100 pt-2">
+                                    <div class="flex items-center space-x-2 flex-1 mr-3">
+                                        <button onclick="toggleIslandItemHide(${originalIndex}, 'en')" class="text-slate-400 p-0.5" title="Toggle Hide">
+                                            <i class="fa-solid fa-eye text-xs"></i>
+                                        </button>
+                                        <div class="text-xs font-medium text-slate-600 ${item.hideEn ? 'blur-sm select-none bg-slate-200 text-transparent rounded px-1' : ''}">
+                                            ${item.en}
+                                        </div>
+                                    </div>
+                                    <button onclick="playPronunciation('${item.en.replace(/'/g, "\\'")}', 'pt-BR')" class="bg-slate-100 text-slate-600 hover:bg-slate-200 w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm transition shrink-0" title="Listen Audio">
+                                        <i class="fa-solid fa-volume-high"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                return;
+            }
+
             const island = islands.find(i => i.id === currentActiveIslandId);
             if (!island) return;
             document.getElementById('currentIslandTitleHeader').innerText = island.name;
@@ -1286,7 +1515,10 @@
                 return `
                     <div id="island-phrase-card-${originalIndex}" class="bg-white border border-slate-200 rounded-2xl p-3 sm:p-4 shadow-sm space-y-3 transition-all duration-300">
                         <div class="flex items-center justify-between">
-                            <span class="text-[11px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md">#${badgeNum}</span>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-[11px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md">#${badgeNum}</span>
+                                <span class="text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">${island.name}</span>
+                            </div>
                             <div class="flex items-center space-x-1">
                                 <button onclick="clearIslandPhraseStars(${originalIndex})" class="text-slate-400 hover:text-rose-600 p-1 transition" title="Zerar estrelas">
                                     <i class="fa-solid fa-arrow-rotate-left text-xs"></i>
@@ -1298,6 +1530,9 @@
                                         </button>
                                     `).join('')}
                                 </div>
+                                <button onclick="promptDeleteIslandPhrase(${originalIndex})" class="text-slate-400 hover:text-rose-600 p-1.5 transition ml-2" title="Excluir frase">
+                                    <i class="fa-solid fa-trash text-xs"></i>
+                                </button>
                             </div>
                         </div>
 
@@ -1347,8 +1582,8 @@
                 return;
             }
 
-            const island = islands.find(i => i.id === currentActiveIslandId);
-            if (!island || island.phrases.length === 0) {
+            const phrasesList = currentActiveIslandId === 'default' ? customPhrases : (islands.find(i => i.id === currentActiveIslandId)?.phrases || []);
+            if (phrasesList.length === 0) {
                 alert("Nenhuma frase nesta ilha para tocar.");
                 return;
             }
@@ -1361,18 +1596,18 @@
 
         function playNextIslandPlaylistPhrase() {
             if (!isIslandPlaylistPlaying) return;
-            const island = islands.find(i => i.id === currentActiveIslandId);
-            if (!island || islandPlaylistIndex >= island.phrases.length) {
+            const phrasesList = currentActiveIslandId === 'default' ? customPhrases : (islands.find(i => i.id === currentActiveIslandId)?.phrases || []);
+            if (islandPlaylistIndex >= phrasesList.length) {
                 isIslandPlaylistPlaying = false;
                 document.getElementById('islandPlaylistPlayIcon').className = "fa-solid fa-play";
                 document.getElementById('islandPlaylistStatus').innerText = "Completed!";
                 return;
             }
 
-            const item = island.phrases[islandPlaylistIndex];
+            const item = phrasesList[islandPlaylistIndex];
             const repeatCount = parseInt(document.getElementById('islandRepeatCount').value) || 1;
             const pauseTime = parseInt(document.getElementById('islandPauseTime').value) || 1000;
-            document.getElementById('islandPlaylistStatus').innerText = `Playing ${islandPlaylistIndex + 1}/${island.phrases.length}`;
+            document.getElementById('islandPlaylistStatus').innerText = `Playing ${islandPlaylistIndex + 1}/${phrasesList.length}`;
 
             const cardEl = document.getElementById(`island-phrase-card-${islandPlaylistIndex}`);
             if (cardEl) {
