@@ -313,27 +313,44 @@
                         </div>
                     </div>
 
-                    <!-- Audio Playlist Controls with Pause Time & Filter by Island -->
-                    <div class="bg-slate-50 border border-slate-200 p-3 rounded-2xl flex flex-wrap items-center justify-between gap-3">
+                    <!-- Audio Playlist Controls with Pause Time, Filter, Sort, Star & Speed Options -->
+                    <div class="bg-slate-50 border border-slate-200 p-3 rounded-2xl flex flex-wrap items-center justify-between gap-2.5">
                         <div class="flex items-center space-x-2">
                             <button onclick="toggleAudioPlaylist()" id="playlistPlayBtn" class="bg-brand-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shadow hover:bg-brand-700 transition">
                                 <i class="fa-solid fa-play" id="playlistPlayIcon"></i>
                             </button>
                             <div>
-                                <p class="text-xs font-bold text-slate-800">Reprodutor de Playlist</p>
+                                <p class="text-xs font-bold text-slate-800">Playlist</p>
                                 <p class="text-[10px] text-slate-500" id="playlistStatus">Pronto</p>
                             </div>
                         </div>
-                        <div class="flex flex-wrap items-center gap-2">
+                        <div class="flex flex-wrap items-center gap-1.5">
                             <div class="flex items-center space-x-1">
-                                <label class="text-[10px] font-semibold text-slate-600">Ilha:</label>
+                                <select id="phraseSortOrder" onchange="renderCustomPhrasesList()" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-semibold text-slate-700 focus:outline-none">
+                                    <option value="oldest" selected>Antigas</option>
+                                    <option value="newest">Novas</option>
+                                    <option value="most_played">Mais Rep.</option>
+                                    <option value="least_played">Menos Rep.</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center space-x-1">
                                 <select id="phraseIslandFilter" onchange="renderCustomPhrasesList()" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-semibold text-slate-700 focus:outline-none">
-                                    <option value="all">Todas</option>
+                                    <option value="all">Ilha: Todas</option>
                                     <option value="inbox">Inbox</option>
                                 </select>
                             </div>
                             <div class="flex items-center space-x-1">
-                                <label class="text-[10px] font-semibold text-slate-600">Rep:</label>
+                                <select id="phraseStarFilter" onchange="renderCustomPhrasesList()" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-semibold text-slate-700 focus:outline-none">
+                                    <option value="all">Estrelas</option>
+                                    <option value="5">★★★★★</option>
+                                    <option value="4">★★★★☆</option>
+                                    <option value="3">★★★☆☆</option>
+                                    <option value="2">★★☆☆☆</option>
+                                    <option value="1">★☆☆☆☆</option>
+                                    <option value="0">0 (Sem)</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center space-x-1">
                                 <select id="phraseRepeatCount" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-semibold text-slate-700 focus:outline-none">
                                     <option value="1">1x</option>
                                     <option value="2">2x</option>
@@ -343,7 +360,14 @@
                                 </select>
                             </div>
                             <div class="flex items-center space-x-1">
-                                <label class="text-[10px] font-semibold text-slate-600">Pausa:</label>
+                                <select id="audioSpeedSelect" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-semibold text-slate-700 focus:outline-none">
+                                    <option value="0.75">0.75x</option>
+                                    <option value="1.0" selected>1.0x</option>
+                                    <option value="1.25">1.25x</option>
+                                    <option value="1.5">1.5x</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center space-x-1">
                                 <select id="phrasePauseTime" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-semibold text-slate-700 focus:outline-none">
                                     <option value="500">0.5s</option>
                                     <option value="1000" selected>1.0s</option>
@@ -613,6 +637,38 @@
         </div>
     </div>
 
+    <!-- Modal para Editar Frase (Inglês e Português) -->
+    <div id="editPhraseModal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-base font-bold text-slate-900 flex items-center">
+                    <i class="fa-solid fa-pen-to-square text-brand-600 mr-2"></i> Editar Frase
+                </h3>
+                <button onclick="closeEditPhraseModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Frase em Inglês (Principal)</label>
+                    <textarea id="editPtPhraseInput" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 font-semibold text-slate-900"></textarea>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tradução em Português</label>
+                    <textarea id="editEnPhraseInput" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 text-slate-700"></textarea>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2 pt-2">
+                <button onclick="closeEditPhraseModal()" class="bg-slate-100 text-slate-700 font-semibold py-2.5 rounded-xl text-xs hover:bg-slate-200 transition">
+                    Cancelar
+                </button>
+                <button onclick="saveEditedPhrase()" class="bg-brand-600 text-white font-semibold py-2.5 rounded-xl text-xs shadow hover:bg-brand-700 transition">
+                    Salvar Alterações
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Goal Configuration Modal Window -->
     <div id="goalModal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-5 animate-in fade-in zoom-in duration-200">
@@ -790,9 +846,9 @@
     <script>
         // Data Store & State Initialization
         let customPhrases = JSON.parse(localStorage.getItem('srs_master_phrases')) || [
-            { id: '1', pt: "The tallest building in the city.", en: "O prédio mais alto da cidade.", stars: 0, hidePt: false, hideEn: false, interval: 1, repetition: 0, easeFactor: 2.5 },
-            { id: '2', pt: "I would like to buy a round-trip ticket.", en: "Eu gostaria de comprar uma passagem de ida e volta.", stars: 0, hidePt: false, hideEn: false, interval: 3, repetition: 1, easeFactor: 2.5 },
-            { id: '3', pt: "Please, where is the nearest train station?", en: "Por favor, onde fica a estação de trem mais próxima?", stars: 0, hidePt: false, hideEn: false, interval: 6, repetition: 2, easeFactor: 2.5 }
+            { id: '1', pt: "The tallest building in the city.", en: "O prédio mais alto da cidade.", stars: 0, playCount: 0, createdAt: 1, hidePt: false, hideEn: false, interval: 1, repetition: 0, easeFactor: 2.5 },
+            { id: '2', pt: "I would like to buy a round-trip ticket.", en: "Eu gostaria de comprar uma passagem de ida e volta.", stars: 0, playCount: 0, createdAt: 2, hidePt: false, hideEn: false, interval: 3, repetition: 1, easeFactor: 2.5 },
+            { id: '3', pt: "Please, where is the nearest train station?", en: "Por favor, onde fica a estação de trem mais próxima?", stars: 0, playCount: 0, createdAt: 3, hidePt: false, hideEn: false, interval: 6, repetition: 2, easeFactor: 2.5 }
         ];
 
         let islands = JSON.parse(localStorage.getItem('srs_master_islands')) || [];
@@ -811,10 +867,14 @@
 
         let lastAudioPlayTimestamp = 0;
 
-        function recordPlayAction() {
+        function recordPlayAction(targetItem) {
             const now = Date.now();
             studyStats.totalRepsToday = (studyStats.totalRepsToday || 0) + 1;
             
+            if (targetItem) {
+                targetItem.playCount = (targetItem.playCount || 0) + 1;
+            }
+
             if (now - lastAudioPlayTimestamp > 30000 || lastAudioPlayTimestamp === 0) {
                 studyStats.studyTimeToday = (studyStats.studyTimeToday || 0) + 1;
             }
@@ -917,7 +977,7 @@
             if (!filterSelect) return;
             const currentVal = filterSelect.value;
             let html = `
-                <option value="all">Todas</option>
+                <option value="all">Ilha: Todas</option>
                 <option value="inbox">Inbox</option>
             `;
             html += islands.map(i => `<option value="${i.id}">${i.name}</option>`).join('');
@@ -1033,7 +1093,7 @@
             saveAll();
         }
 
-        // Mudar de ilha ao clicar no nome da ilha do cartão (Modal interativo mobile-friendly)
+        // Mudar de ilha ao clicar no nome da ilha do cartão
         function changePhraseIslandPrompt(globalIndex) {
             editingPhraseGlobalIndex = globalIndex;
             const listEl = document.getElementById('islandOptionsList');
@@ -1041,7 +1101,7 @@
 
             let html = `
                 <button onclick="movePhraseToIslandTarget('inbox')" class="w-full text-left px-4 py-2.5 rounded-xl text-xs font-semibold bg-slate-50 hover:bg-brand-50 hover:text-brand-600 transition flex items-center justify-between">
-                    <span>Inbox (Predefinida)</span>
+                    <span>Inbox</span>
                     <i class="fa-solid fa-inbox text-slate-400"></i>
                 </button>
             `;
@@ -1093,14 +1153,12 @@
                 return;
             }
 
-            // Remover da origem
             if (currentSource === 'inbox') {
                 customPhrases.splice(customPhrases.indexOf(targetItem), 1);
             } else if (sourceIslandObj) {
                 sourceIslandObj.phrases.splice(sourceIslandObj.phrases.indexOf(targetItem), 1);
             }
 
-            // Adicionar ao destino
             if (targetIslandId === 'inbox') {
                 customPhrases.push(targetItem);
             } else {
@@ -1111,6 +1169,71 @@
             }
 
             closeChangeIslandModal();
+            saveAll();
+        }
+
+        // Editar Frase (Inglês e Português)
+        function openEditPhraseModal(globalIndex) {
+            editingPhraseGlobalIndex = globalIndex;
+            let targetItem = null;
+
+            if (globalIndex < customPhrases.length) {
+                targetItem = customPhrases[globalIndex];
+            } else {
+                let offset = customPhrases.length;
+                for (let island of islands) {
+                    if (globalIndex < offset + island.phrases.length) {
+                        targetItem = island.phrases[globalIndex - offset];
+                        break;
+                    }
+                    offset += island.phrases.length;
+                }
+            }
+
+            if (!targetItem) return;
+
+            document.getElementById('editPtPhraseInput').value = targetItem.pt;
+            document.getElementById('editEnPhraseInput').value = targetItem.en;
+            document.getElementById('editPhraseModal').classList.remove('hidden');
+        }
+
+        function closeEditPhraseModal() {
+            editingPhraseGlobalIndex = null;
+            document.getElementById('editPhraseModal').classList.add('hidden');
+        }
+
+        function saveEditedPhrase() {
+            if (editingPhraseGlobalIndex === null) return;
+            const globalIndex = editingPhraseGlobalIndex;
+
+            const newPt = document.getElementById('editPtPhraseInput').value.trim();
+            const newEn = document.getElementById('editEnPhraseInput').value.trim();
+
+            if (!newPt || !newEn) {
+                alert("Por favor, preencha ambos os campos.");
+                return;
+            }
+
+            let targetItem = null;
+            if (globalIndex < customPhrases.length) {
+                targetItem = customPhrases[globalIndex];
+            } else {
+                let offset = customPhrases.length;
+                for (let island of islands) {
+                    if (globalIndex < offset + island.phrases.length) {
+                        targetItem = island.phrases[globalIndex - offset];
+                        break;
+                    }
+                    offset += island.phrases.length;
+                }
+            }
+
+            if (targetItem) {
+                targetItem.pt = newPt;
+                targetItem.en = newEn;
+            }
+
+            closeEditPhraseModal();
             saveAll();
         }
 
@@ -1184,7 +1307,7 @@
                 else if (quality === 2) item.stars = 3;
                 else item.stars = 1;
 
-                recordPlayAction();
+                recordPlayAction(item);
             }
 
             currentCardIndex = (currentCardIndex + 1) % allItems.length;
@@ -1213,12 +1336,29 @@
                 window.speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = lang;
-                window.speechSynthesis.speak(utterance);
-                recordPlayAction();
+                
+                const speed = parseFloat(document.getElementById('audioSpeedSelect')?.value || 1.0);
+                utterance.rate = speed;
 
+                window.speechSynthesis.speak(utterance);
+                
+                let targetItem = null;
                 if (globalIndex !== undefined) {
+                    if (globalIndex < customPhrases.length) {
+                        targetItem = customPhrases[globalIndex];
+                    } else {
+                        let offset = customPhrases.length;
+                        for (let island of islands) {
+                            if (globalIndex < offset + island.phrases.length) {
+                                targetItem = island.phrases[globalIndex - offset];
+                                break;
+                            }
+                            offset += island.phrases.length;
+                        }
+                    }
                     scrollToCard(globalIndex);
                 }
+                recordPlayAction(targetItem);
             }
         }
 
@@ -1324,11 +1464,19 @@
             const islandId = document.getElementById('newPhraseIslandSelect').value;
 
             if (pt && en) {
+                const maxCreatedAt = Math.max(
+                    0,
+                    ...customPhrases.map(p => p.createdAt || 0),
+                    ...islands.flatMap(i => i.phrases.map(p => p.createdAt || 0))
+                );
+
                 const newPhrase = {
                     id: Date.now().toString(),
                     pt,
                     en,
                     stars: 0,
+                    playCount: 0,
+                    createdAt: maxCreatedAt + 1,
                     hidePt: false,
                     hideEn: false,
                     interval: 1,
@@ -1352,18 +1500,25 @@
             }
         }
 
-        function renderPhraseCardHtml(item, globalIndex, islandName) {
+        function renderPhraseCardHtml(item, displayNum, globalIndex, islandName) {
+            const playCount = item.playCount || 0;
             return `
                 <div id="phrase-card-${globalIndex}" class="relative overflow-hidden bg-white border border-slate-200 rounded-2xl p-3 sm:p-4 shadow-sm space-y-3 transition-all duration-300">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-2">
-                            <span class="text-[11px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md">#${globalIndex + 1}</span>
-                            <span onclick="changePhraseIslandPrompt(${globalIndex})" class="text-[10px] font-semibold text-slate-600 bg-slate-100 hover:bg-brand-50 hover:text-brand-600 px-2 py-0.5 rounded-md cursor-pointer transition shadow-xs" title="Clique para mudar de ilha">
-                                <i class="fa-solid fa-map-pin mr-1 text-[9px]"></i>${islandName} <i class="fa-solid fa-pen text-[8px] ml-0.5 opacity-60"></i>
+                            <span class="text-[11px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md">#${displayNum}</span>
+                            <span onclick="changePhraseIslandPrompt(${globalIndex})" class="text-[10px] font-semibold text-slate-600 bg-slate-100 hover:bg-brand-50 hover:text-brand-600 px-2 py-0.5 rounded-md cursor-pointer transition shadow-xs inline-flex items-center" title="Clique para mudar de ilha">
+                                ${islandName} <i class="fa-solid fa-pen text-[7px] ml-1 opacity-60"></i>
+                            </span>
+                            <span class="text-[10px] font-medium text-slate-500 bg-slate-50 px-1.5 py-0.5 rounded-md">
+                                <span class="font-bold text-slate-700">${playCount}</span> reps
                             </span>
                         </div>
                         <div class="flex items-center space-x-1">
-                            <button onclick="clearPhraseStarsGlobal(${globalIndex})" class="text-slate-400 hover:text-rose-600 p-1 transition" title="Zerar estrelas">
+                            <button onclick="openEditPhraseModal(${globalIndex})" class="text-slate-400 hover:text-brand-600 p-1.5 transition" title="Editar frase">
+                                <i class="fa-solid fa-pencil text-xs"></i>
+                            </button>
+                            <button onclick="clearPhraseStarsGlobal(${globalIndex})" class="text-slate-400 hover:text-rose-600 p-1 transition ml-1" title="Zerar estrelas">
                                 <i class="fa-solid fa-arrow-rotate-left text-xs"></i>
                             </button>
                             <div class="flex space-x-0.5">
@@ -1417,6 +1572,8 @@
             if (!container) return;
 
             const selectedIslandFilter = document.getElementById('phraseIslandFilter')?.value || 'all';
+            const sortOrder = document.getElementById('phraseSortOrder')?.value || 'oldest';
+            const starFilter = document.getElementById('phraseStarFilter')?.value || 'all';
 
             const allItems = [
                 ...customPhrases.map((p, i) => ({ item: p, globalIdx: i, island: 'Inbox', islandId: 'inbox' })),
@@ -1428,12 +1585,34 @@
             ];
 
             let filtered = allItems;
+
+            // Filtro por Ilha
             if (selectedIslandFilter !== 'all') {
-                filtered = allItems.filter(obj => {
+                filtered = filtered.filter(obj => {
                     if (selectedIslandFilter === 'inbox') return obj.islandId === 'inbox' || obj.island === 'Inbox';
                     return obj.islandId === selectedIslandFilter;
                 });
             }
+
+            // Filtro por Estrela
+            if (starFilter !== 'all') {
+                const targetStars = parseInt(starFilter);
+                filtered = filtered.filter(obj => (obj.item.stars || 0) === targetStars);
+            }
+
+            // Ordenação
+            filtered.sort((a, b) => {
+                const timeA = a.item.createdAt || 0;
+                const timeB = b.item.createdAt || 0;
+                const countA = a.item.playCount || 0;
+                const countB = b.item.playCount || 0;
+
+                if (sortOrder === 'oldest') return timeA - timeB;
+                if (sortOrder === 'newest') return timeB - timeA;
+                if (sortOrder === 'most_played') return countB - countA;
+                if (sortOrder === 'least_played') return countA - countB;
+                return 0;
+            });
 
             document.getElementById('customPhraseCount').innerText = `${filtered.length} Itens`;
 
@@ -1442,7 +1621,7 @@
                 return;
             }
 
-            container.innerHTML = filtered.map(obj => renderPhraseCardHtml(obj.item, obj.globalIdx, obj.island)).join('');
+            container.innerHTML = filtered.map((obj, index) => renderPhraseCardHtml(obj.item, index + 1, obj.globalIdx, obj.island)).join('');
         }
 
         // Sequential Audio Playlist (Global)
@@ -1460,6 +1639,9 @@
             }
 
             const selectedIslandFilter = document.getElementById('phraseIslandFilter')?.value || 'all';
+            const sortOrder = document.getElementById('phraseSortOrder')?.value || 'oldest';
+            const starFilter = document.getElementById('phraseStarFilter')?.value || 'all';
+
             let sourceList = [
                 ...customPhrases.map((p, i) => ({ item: p, globalIdx: i, islandId: 'inbox' })),
                 ...islands.flatMap((island, isI) => {
@@ -1475,6 +1657,24 @@
                     return obj.islandId === selectedIslandFilter;
                 });
             }
+
+            if (starFilter !== 'all') {
+                const targetStars = parseInt(starFilter);
+                sourceList = sourceList.filter(obj => (obj.item.stars || 0) === targetStars);
+            }
+
+            sourceList.sort((a, b) => {
+                const timeA = a.item.createdAt || 0;
+                const timeB = b.item.createdAt || 0;
+                const countA = a.item.playCount || 0;
+                const countB = b.item.playCount || 0;
+
+                if (sortOrder === 'oldest') return timeA - timeB;
+                if (sortOrder === 'newest') return timeB - timeA;
+                if (sortOrder === 'most_played') return countB - countA;
+                if (sortOrder === 'least_played') return countA - countB;
+                return 0;
+            });
 
             activePlaylistItemsList = sourceList;
 
@@ -1515,11 +1715,13 @@
                     playedReps++;
                     const utterance = new SpeechSynthesisUtterance(item.pt);
                     utterance.lang = 'en-US';
+                    const speed = parseFloat(document.getElementById('audioSpeedSelect')?.value || 1.0);
+                    utterance.rate = speed;
                     utterance.onend = () => {
                         setTimeout(speakRep, pauseTime);
                     };
                     window.speechSynthesis.speak(utterance);
-                    recordPlayAction();
+                    recordPlayAction(item);
                 } else {
                     playlistCurrentIndex++;
                     setTimeout(playNextPlaylistPhrase, pauseTime);
@@ -1656,7 +1858,7 @@
                 return;
             }
 
-            container.innerHTML = filtered.map(obj => renderPhraseCardHtml(obj.item, obj.globalIdx, islandName)).join('');
+            container.innerHTML = filtered.map((obj, index) => renderPhraseCardHtml(obj.item, index + 1, obj.globalIdx, islandName)).join('');
         }
 
         let isIslandPlaylistPlaying = false;
@@ -1736,7 +1938,7 @@
                         setTimeout(speakRep, pauseTime);
                     };
                     window.speechSynthesis.speak(utterance);
-                    recordPlayAction();
+                    recordPlayAction(item);
                 } else {
                     islandPlaylistIndex++;
                     setTimeout(playNextIslandPlaylistPhrase, pauseTime);
