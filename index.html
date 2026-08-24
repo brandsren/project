@@ -147,10 +147,10 @@
                                 <i class="fa-regular fa-clock text-brand-600"></i>
                                 <span>Minutos</span>
                             </div>
-                            <span id="minutosGoalText" class="text-slate-500 font-bold">0 min</span>
+                            <span id="minutosGoalText" class="text-slate-500 font-bold">0/10 min</span>
                         </div>
                         <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                            <div id="minutosProgressBar" class="bg-brand-600 h-full rounded-full transition-all duration-500" style="width: 100%"></div>
+                            <div id="minutosProgressBar" class="bg-brand-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
                         </div>
                     </div>
 
@@ -832,7 +832,7 @@
         </div>
     </div>
 
-    <!-- Goal Configuration Modal Window -->
+    <!-- Goal Configuration Modal Window (Com Tempo e Repetições) -->
     <div id="goalModal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-5 animate-in fade-in zoom-in duration-200">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -842,9 +842,13 @@
                 </button>
             </div>
             <p class="text-xs text-slate-500 leading-relaxed">
-                Defina um objetivo pessoal de repetições diárias.
+                Defina seus objetivos diários de tempo de estudo e repetições.
             </p>
             <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Meta de Tempo (minutos por dia)</label>
+                    <input type="number" id="modalGoalMinutes" min="1" max="180" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1.5">Meta de Repetições (por dia)</label>
                     <input type="number" id="modalGoalReps" min="5" max="1000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
@@ -855,7 +859,7 @@
                     Guardar meta
                 </button>
                 <button onclick="useDefaultGoal()" class="w-full text-brand-600 font-semibold py-2 rounded-xl text-xs hover:bg-slate-50 transition">
-                    Usar meta predefinida (200)
+                    Usar padrão (10 min / 200 rep)
                 </button>
             </div>
         </div>
@@ -1033,18 +1037,17 @@
         let editingPhraseGlobalIndex = null;
         let selectedFlashcardDeckId = null;
 
-        let lastAudioPlayTimestamp = 0;
         let isPlaylistPlaying = false;
         let playlistCurrentIndex = 0;
         let activePlaylistItemsList = [];
         let activePlaylistFiltersSignature = "";
 
-        // Timer real para contar o tempo de estudo em segundo plano
+        // Cronômetro ativo real para contar o tempo de estudo
         setInterval(() => {
             checkAndResetDailyStats();
             studyStats.studyTimeToday = (studyStats.studyTimeToday || 0) + 1;
             saveAll();
-        }, 60000); // Incrementa 1 minuto a cada 60 segundos de app ativo
+        }, 60000);
 
         function recordPlayAction(targetItem) {
             checkAndResetDailyStats();
@@ -1215,6 +1218,7 @@
         }
 
         function openGoalModal() {
+            document.getElementById('modalGoalMinutes').value = studyStats.goalMinutes || 10;
             document.getElementById('modalGoalReps').value = studyStats.goalReps || 200;
             document.getElementById('goalModal').classList.remove('hidden');
         }
@@ -1240,13 +1244,16 @@
         }
 
         function saveModalGoal() {
+            const min = parseInt(document.getElementById('modalGoalMinutes').value) || 10;
             const reps = parseInt(document.getElementById('modalGoalReps').value) || 200;
+            studyStats.goalMinutes = min;
             studyStats.goalReps = reps;
             saveAll();
             closeGoalModal();
         }
 
         function useDefaultGoal() {
+            studyStats.goalMinutes = 10;
             studyStats.goalReps = 200;
             saveAll();
             closeGoalModal();
@@ -1254,17 +1261,20 @@
 
         function updateDashboardStats() {
             checkAndResetDailyStats();
+            const goalMin = studyStats.goalMinutes || 10;
             const goalRep = studyStats.goalReps || 200;
+            const currentMin = studyStats.studyTimeToday || 0;
             const currentRep = studyStats.totalRepsToday || 0;
 
+            const minPct = Math.min(100, Math.round((currentMin / goalMin) * 100));
             const repPct = Math.min(100, Math.round((currentRep / goalRep) * 100));
 
             document.getElementById('goalPercentSidebar').innerText = repPct + '%';
             document.getElementById('goalProgressBarSidebar').style.width = repPct + '%';
             document.getElementById('goalTextSidebar').innerText = `${currentRep} / ${goalRep} rep. hoje`;
 
-            document.getElementById('minutosGoalText').innerText = `${studyStats.studyTimeToday || 0} min`;
-            document.getElementById('minutosProgressBar').style.width = '100%';
+            document.getElementById('minutosGoalText').innerText = `${currentMin}/${goalMin} min`;
+            document.getElementById('minutosProgressBar').style.width = minPct + '%';
 
             document.getElementById('repGoalText').innerText = `${currentRep}/${goalRep} rep.`;
             document.getElementById('repProgressBar').style.width = repPct + '%';
@@ -2045,18 +2055,12 @@
 
         function resetPlaylistPlayback() {
             playlistCurrentIndex = 0;
-            islandPlaylistIndex = 0;
             isPlaylistPlaying = false;
             window.speechSynthesis.cancel();
             const playIcon = document.getElementById('playlistPlayIcon');
             if (playIcon) playIcon.className = "fa-solid fa-play";
             const statusText = document.getElementById('playlistStatus');
             if (statusText) statusText.innerText = "Reiniciado";
-
-            const islandPlayIcon = document.getElementById('islandPlaylistPlayIcon');
-            if (islandPlayIcon) islandPlayIcon.className = "fa-solid fa-play";
-            const islandStatusText = document.getElementById('islandPlaylistStatus');
-            if (islandStatusText) islandStatusText.innerText = "Reiniciado";
         }
 
         // Sequential Audio Playlist (Global)
@@ -2069,15 +2073,8 @@
             if (isPlaylistPlaying) {
                 isPlaylistPlaying = false;
                 window.speechSynthesis.cancel();
-                const playIcon = document.getElementById('playlistPlayIcon');
-                if (playIcon) playIcon.className = "fa-solid fa-play";
-                const statusText = document.getElementById('playlistStatus');
-                if (statusText) statusText.innerText = "Pausado";
-
-                const islandPlayIcon = document.getElementById('islandPlaylistPlayIcon');
-                if (islandPlayIcon) islandPlayIcon.className = "fa-solid fa-play";
-                const islandStatusText = document.getElementById('islandPlaylistStatus');
-                if (islandStatusText) islandStatusText.innerText = "Pausado";
+                document.getElementById('playlistPlayIcon').className = "fa-solid fa-play";
+                document.getElementById('playlistStatus').innerText = "Pausado";
                 return;
             }
 
@@ -2146,9 +2143,6 @@
 
             isPlaylistPlaying = true;
             document.getElementById('playlistPlayIcon').className = "fa-solid fa-pause";
-            const islandPlayIcon = document.getElementById('islandPlaylistPlayIcon');
-            if (islandPlayIcon) islandPlayIcon.className = "fa-solid fa-pause";
-
             playNextPlaylistPhrase();
         }
 
@@ -2159,10 +2153,6 @@
                 isPlaylistPlaying = false;
                 document.getElementById('playlistPlayIcon').className = "fa-solid fa-play";
                 document.getElementById('playlistStatus').innerText = "Concluído!";
-                const islandPlayIcon = document.getElementById('islandPlaylistPlayIcon');
-                if (islandPlayIcon) islandPlayIcon.className = "fa-solid fa-play";
-                const islandStatusText = document.getElementById('islandPlaylistStatus');
-                if (islandStatusText) islandStatusText.innerText = "Concluído!";
                 return;
             }
 
@@ -2175,8 +2165,6 @@
             
             const statusMsg = `A reproduzir ${playlistCurrentIndex + 1}/${activePlaylistItemsList.length}`;
             document.getElementById('playlistStatus').innerText = statusMsg;
-            const islandStatusText = document.getElementById('islandPlaylistStatus');
-            if (islandStatusText) islandStatusText.innerText = statusMsg;
 
             scrollToCard(globalCardIdx);
 
