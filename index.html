@@ -314,7 +314,7 @@
                     </div>
 
                     <!-- Audio Playlist Controls with Pause Time, Filter, Sort, Star & Speed Options -->
-                    <div class="bg-slate-50 border border-slate-200 p-3 rounded-2xl flex flex-wrap items-center justify-between gap-2.5">
+                    <div class="bg-slate-50 border border-slate-200 p-3 rounded-2xl flex flex-wrap items-center justify-between gap-2">
                         <div class="flex items-center space-x-2">
                             <button onclick="toggleAudioPlaylist()" id="playlistPlayBtn" class="bg-brand-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shadow hover:bg-brand-700 transition">
                                 <i class="fa-solid fa-play" id="playlistPlayIcon"></i>
@@ -326,7 +326,7 @@
                         </div>
                         <div class="flex flex-wrap items-center gap-1.5">
                             <div class="flex items-center space-x-1">
-                                <select id="phraseSortOrder" onchange="renderCustomPhrasesList()" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-semibold text-slate-700 focus:outline-none">
+                                <select id="phraseSortOrder" onchange="onPlaylistFilterOrSortChange()" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-semibold text-slate-700 focus:outline-none">
                                     <option value="oldest" selected>Antigas</option>
                                     <option value="newest">Novas</option>
                                     <option value="most_played">Mais Rep.</option>
@@ -334,13 +334,13 @@
                                 </select>
                             </div>
                             <div class="flex items-center space-x-1">
-                                <select id="phraseIslandFilter" onchange="renderCustomPhrasesList()" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-semibold text-slate-700 focus:outline-none">
-                                    <option value="all">Ilha: Todas</option>
+                                <select id="phraseIslandFilter" onchange="onPlaylistFilterOrSortChange()" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-semibold text-slate-700 focus:outline-none">
+                                    <option value="all">Todas</option>
                                     <option value="inbox">Inbox</option>
                                 </select>
                             </div>
                             <div class="flex items-center space-x-1">
-                                <select id="phraseStarFilter" onchange="renderCustomPhrasesList()" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-semibold text-slate-700 focus:outline-none">
+                                <select id="phraseStarFilter" onchange="onPlaylistFilterOrSortChange()" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-semibold text-slate-700 focus:outline-none">
                                     <option value="all">Estrelas</option>
                                     <option value="5">★★★★★</option>
                                     <option value="4">★★★★☆</option>
@@ -361,9 +361,11 @@
                             </div>
                             <div class="flex items-center space-x-1">
                                 <select id="audioSpeedSelect" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-semibold text-slate-700 focus:outline-none">
+                                    <option value="0.5">0.50x</option>
                                     <option value="0.75">0.75x</option>
+                                    <option value="0.9">0.9x</option>
                                     <option value="1.0" selected>1.0x</option>
-                                    <option value="1.25">1.25x</option>
+                                    <option value="1.2">1.2x</option>
                                     <option value="1.5">1.5x</option>
                                 </select>
                             </div>
@@ -806,6 +808,7 @@
                         if (cloudData.islands) islands = cloudData.islands;
                         if (cloudData.studyStats) studyStats = cloudData.studyStats;
                         
+                        checkAndResetDailyStats();
                         updateDashboardStats();
                         updatePhraseIslandFilterDropdown();
                         renderCustomPhrasesList();
@@ -858,16 +861,33 @@
             totalRepsToday: 0,
             streak: 0,
             goalMinutes: 10,
-            goalReps: 200
+            goalReps: 200,
+            lastStudyDate: new Date().toDateString()
         };
+
+        function checkAndResetDailyStats() {
+            const todayStr = new Date().toDateString();
+            if (!studyStats.lastStudyDate || studyStats.lastStudyDate !== todayStr) {
+                studyStats.studyTimeToday = 0;
+                studyStats.totalRepsToday = 0;
+                studyStats.lastStudyDate = todayStr;
+            }
+        }
+
+        checkAndResetDailyStats();
 
         let currentActiveIslandId = null; // null means home list of islands
         let deleteTarget = null; // { type: 'global', index: number }
         let editingPhraseGlobalIndex = null;
 
         let lastAudioPlayTimestamp = 0;
+        let isPlaylistPlaying = false;
+        let playlistCurrentIndex = 0;
+        let activePlaylistItemsList = [];
+        let activePlaylistFiltersSignature = "";
 
         function recordPlayAction(targetItem) {
+            checkAndResetDailyStats();
             const now = Date.now();
             studyStats.totalRepsToday = (studyStats.totalRepsToday || 0) + 1;
             
@@ -931,6 +951,7 @@
         }
 
         function updateDashboardStats() {
+            checkAndResetDailyStats();
             document.getElementById('streakCount').innerText = studyStats.streak || 0;
 
             const goalMin = studyStats.goalMinutes || 10;
@@ -977,7 +998,7 @@
             if (!filterSelect) return;
             const currentVal = filterSelect.value;
             let html = `
-                <option value="all">Ilha: Todas</option>
+                <option value="all">Todas</option>
                 <option value="inbox">Inbox</option>
             `;
             html += islands.map(i => `<option value="${i.id}">${i.name}</option>`).join('');
@@ -998,6 +1019,15 @@
                     mobBtn.className = "flex flex-col items-center justify-center flex-1 py-1 text-slate-400";
                 }
             });
+
+            if (tabId !== 'custom-phrases' && isPlaylistPlaying) {
+                isPlaylistPlaying = false;
+                window.speechSynthesis.cancel();
+                const playIcon = document.getElementById('playlistPlayIcon');
+                if (playIcon) playIcon.className = "fa-solid fa-play";
+                const statusText = document.getElementById('playlistStatus');
+                if (statusText) statusText.innerText = "Pronto";
+            }
 
             const targetView = document.getElementById(`view-${tabId}`);
             if (targetView) targetView.classList.remove('hidden');
@@ -1333,7 +1363,16 @@
 
         function playPronunciation(text, lang, globalIndex) {
             if ('speechSynthesis' in window) {
+                // Interrompe imediatamente qualquer áudio em andamento e PARA a playlist se estiver a tocar
                 window.speechSynthesis.cancel();
+                if (isPlaylistPlaying) {
+                    isPlaylistPlaying = false;
+                    const playIcon = document.getElementById('playlistPlayIcon');
+                    if (playIcon) playIcon.className = "fa-solid fa-play";
+                    const statusText = document.getElementById('playlistStatus');
+                    if (statusText) statusText.innerText = "Parado";
+                }
+
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = lang;
                 
@@ -1356,6 +1395,14 @@
                             offset += island.phrases.length;
                         }
                     }
+                    
+                    if (activePlaylistItemsList.length > 0) {
+                        const foundIdx = activePlaylistItemsList.findIndex(obj => obj.globalIdx === globalIndex);
+                        if (foundIdx !== -1) {
+                            playlistCurrentIndex = foundIdx;
+                        }
+                    }
+
                     scrollToCard(globalIndex);
                 }
                 recordPlayAction(targetItem);
@@ -1510,8 +1557,8 @@
                             <span onclick="changePhraseIslandPrompt(${globalIndex})" class="text-[10px] font-semibold text-slate-600 bg-slate-100 hover:bg-brand-50 hover:text-brand-600 px-2 py-0.5 rounded-md cursor-pointer transition shadow-xs inline-flex items-center" title="Clique para mudar de ilha">
                                 ${islandName} <i class="fa-solid fa-pen text-[7px] ml-1 opacity-60"></i>
                             </span>
-                            <span class="text-[10px] font-medium text-slate-500 bg-slate-50 px-1.5 py-0.5 rounded-md">
-                                <span class="font-bold text-slate-700">${playCount}</span> reps
+                            <span class="text-[10px] font-medium text-slate-500 inline-flex items-center space-x-0.5">
+                                <span class="font-bold text-slate-700">${playCount}</span><span>reps</span>
                             </span>
                         </div>
                         <div class="flex items-center space-x-1">
@@ -1586,7 +1633,6 @@
 
             let filtered = allItems;
 
-            // Filtro por Ilha
             if (selectedIslandFilter !== 'all') {
                 filtered = filtered.filter(obj => {
                     if (selectedIslandFilter === 'inbox') return obj.islandId === 'inbox' || obj.island === 'Inbox';
@@ -1594,13 +1640,11 @@
                 });
             }
 
-            // Filtro por Estrela
             if (starFilter !== 'all') {
                 const targetStars = parseInt(starFilter);
                 filtered = filtered.filter(obj => (obj.item.stars || 0) === targetStars);
             }
 
-            // Ordenação
             filtered.sort((a, b) => {
                 const timeA = a.item.createdAt || 0;
                 const timeB = b.item.createdAt || 0;
@@ -1624,12 +1668,25 @@
             container.innerHTML = filtered.map((obj, index) => renderPhraseCardHtml(obj.item, index + 1, obj.globalIdx, obj.island)).join('');
         }
 
-        // Sequential Audio Playlist (Global)
-        let isPlaylistPlaying = false;
-        let playlistCurrentIndex = 0;
-        let activePlaylistItemsList = [];
+        function onPlaylistFilterOrSortChange() {
+            isPlaylistPlaying = false;
+            window.speechSynthesis.cancel();
+            const playIcon = document.getElementById('playlistPlayIcon');
+            if (playIcon) playIcon.className = "fa-solid fa-play";
+            const statusText = document.getElementById('playlistStatus');
+            if (statusText) statusText.innerText = "Pronto";
+            playlistCurrentIndex = 0;
+            activePlaylistFiltersSignature = "";
+            renderCustomPhrasesList();
+        }
 
+        // Sequential Audio Playlist (Global)
         function toggleAudioPlaylist() {
+            const selectedIslandFilter = document.getElementById('phraseIslandFilter')?.value || 'all';
+            const sortOrder = document.getElementById('phraseSortOrder')?.value || 'oldest';
+            const starFilter = document.getElementById('phraseStarFilter')?.value || 'all';
+            const currentSignature = `${selectedIslandFilter}_${sortOrder}_${starFilter}`;
+
             if (isPlaylistPlaying) {
                 isPlaylistPlaying = false;
                 window.speechSynthesis.cancel();
@@ -1637,10 +1694,6 @@
                 document.getElementById('playlistStatus').innerText = "Parado";
                 return;
             }
-
-            const selectedIslandFilter = document.getElementById('phraseIslandFilter')?.value || 'all';
-            const sortOrder = document.getElementById('phraseSortOrder')?.value || 'oldest';
-            const starFilter = document.getElementById('phraseStarFilter')?.value || 'all';
 
             let sourceList = [
                 ...customPhrases.map((p, i) => ({ item: p, globalIdx: i, islandId: 'inbox' })),
@@ -1683,8 +1736,12 @@
                 return;
             }
 
+            if (activePlaylistFiltersSignature !== currentSignature) {
+                playlistCurrentIndex = 0;
+                activePlaylistFiltersSignature = currentSignature;
+            }
+
             isPlaylistPlaying = true;
-            playlistCurrentIndex = 0;
             document.getElementById('playlistPlayIcon').className = "fa-solid fa-pause";
             playNextPlaylistPhrase();
         }
@@ -1692,6 +1749,7 @@
         function playNextPlaylistPhrase() {
             if (!isPlaylistPlaying) return;
             if (playlistCurrentIndex >= activePlaylistItemsList.length) {
+                playlistCurrentIndex = 0;
                 isPlaylistPlaying = false;
                 document.getElementById('playlistPlayIcon').className = "fa-solid fa-play";
                 document.getElementById('playlistStatus').innerText = "Concluído!";
@@ -2001,6 +2059,7 @@
         }
 
         window.onload = function() {
+            checkAndResetDailyStats();
             updateDashboardStats();
             updatePhraseIslandFilterDropdown();
             renderCustomPhrasesList();
@@ -2010,4 +2069,3 @@
     </script>
 </body>
 </html>
-
