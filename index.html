@@ -341,15 +341,14 @@
                                 <textarea id="newEnPhrase" rows="2" required placeholder="Tradução..." class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
                             </div>
                         </div>
-                        <!-- Compact Assign to Island Dropdown -->
+                        <!-- Compact Assign to Island Dropdown com "+ Criar nova ilha..." -->
                         <div class="flex items-center space-x-2 pt-1">
                             <label class="text-[11px] font-semibold text-slate-600 whitespace-nowrap">Atribuir à Ilha:</label>
-                            <select id="newPhraseIslandSelect" class="flex-1 bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:outline-none">
+                            <select id="newPhraseIslandSelect" onchange="handleIslandSelectChange(this)" class="flex-1 bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:outline-none">
                                 <option value="">Inbox</option>
                             </select>
                         </div>
                         <div class="flex items-center justify-between pt-1">
-                            <!-- Botão de Importação em Massa no espaço indicado -->
                             <button type="button" onclick="openMassImportModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold px-4 py-2 rounded-xl text-xs transition flex items-center space-x-1.5">
                                 <i class="fa-solid fa-file-arrow-down"></i>
                                 <span>Importar em Massa</span>
@@ -516,8 +515,68 @@
             <!-- 6. PERFORMANCE STATS VIEW -->
             <section id="view-stats" class="hidden space-y-4">
                 <div class="bg-white border border-slate-200 rounded-3xl p-4 sm:p-6 shadow-sm space-y-4">
-                    <!-- Botão de Exportar Backup (TXT) -->
-                    <div class="bg-brand-50 border border-brand-100 p-4 rounded-2xl flex items-center justify-between">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-900">Estatísticas de Desempenho</h2>
+                            <p class="text-xs text-slate-500">Acompanhamento e domínio do vocabulário.</p>
+                        </div>
+                    </div>
+
+                    <!-- 1. Seção de Frases -->
+                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-2">
+                        <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wide">Métricas de Frases</h3>
+                        <div class="grid grid-cols-2 gap-3 pt-1">
+                            <div class="bg-white p-3 rounded-xl border border-slate-200 text-center">
+                                <div class="text-[10px] font-bold text-slate-400 uppercase">Total de Frases</div>
+                                <div class="text-xl font-extrabold text-slate-900 mt-0.5" id="statTotalPhrases">0</div>
+                            </div>
+                            <div class="bg-white p-3 rounded-xl border border-slate-200 text-center">
+                                <div class="text-[10px] font-bold text-emerald-600 uppercase">Frases Ativas (★5)</div>
+                                <div class="text-xl font-extrabold text-emerald-900 mt-0.5" id="statActivePhrases">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Seção de Repetições -->
+                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-2">
+                        <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wide">Métricas de Repetições</h3>
+                        <div class="grid grid-cols-2 gap-3 pt-1">
+                            <div class="bg-white p-3 rounded-xl border border-slate-200 text-center">
+                                <div class="text-[10px] font-bold text-slate-400 uppercase">Repetições Totais</div>
+                                <div class="text-xl font-extrabold text-slate-900 mt-0.5" id="statTotalReps">0</div>
+                            </div>
+                            <div class="bg-white p-3 rounded-xl border border-slate-200 text-center">
+                                <div class="text-[10px] font-bold text-brand-600 uppercase">Repetições Hoje</div>
+                                <div class="text-xl font-extrabold text-brand-900 mt-0.5" id="statTodayReps">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Seção de Tempo de Estudo -->
+                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-2">
+                        <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wide">Métricas de Tempo</h3>
+                        <div class="grid grid-cols-2 gap-3 pt-1">
+                            <div class="bg-white p-3 rounded-xl border border-slate-200 text-center">
+                                <div class="text-[10px] font-bold text-slate-400 uppercase">Tempo Total</div>
+                                <div class="text-xl font-extrabold text-slate-900 mt-0.5" id="statTotalTime">0 min</div>
+                            </div>
+                            <div class="bg-white p-3 rounded-xl border border-slate-200 text-center">
+                                <div class="text-[10px] font-bold text-amber-600 uppercase">Tempo Hoje</div>
+                                <div class="text-xl font-extrabold text-amber-900 mt-0.5" id="statTodayTime">0 min</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Distribuição por Estrelas (Mantida) -->
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                        <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wide">Distribuição por Estrelas</h3>
+                        <div class="space-y-2.5" id="starBreakdownBars">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Botão de Exportar Backup (TXT) colocado no final -->
+                    <div class="bg-brand-50 border border-brand-100 p-4 rounded-2xl flex items-center justify-between pt-2">
                         <div>
                             <h3 class="text-xs font-bold text-brand-900">Backup das Frases</h3>
                             <p class="text-[10px] text-slate-500">Exporte todas as suas frases em formato TXT.</p>
@@ -527,45 +586,36 @@
                             <span>Exportar TXT</span>
                         </button>
                     </div>
-
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                        <div>
-                            <h2 class="text-lg font-bold text-slate-900">Estatísticas de Desempenho</h2>
-                            <p class="text-xs text-slate-500">Níveis de domínio e classificação por estrelas.</p>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-xl font-extrabold text-brand-600" id="overallMasteryScore">0%</div>
-                            <div class="text-[10px] font-semibold text-slate-400">Taxa de Domínio</div>
-                        </div>
-                    </div>
-
-                    <!-- Cards Status Grid -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl">
-                            <div class="text-[11px] font-bold text-emerald-600 uppercase">Aprendidas (★4-5)</div>
-                            <div class="text-2xl font-extrabold text-emerald-900 mt-0.5" id="learnedCardsCount">0</div>
-                        </div>
-                        <div class="bg-amber-50 border border-amber-200 p-4 rounded-2xl">
-                            <div class="text-[11px] font-bold text-amber-600 uppercase">Em Revisão (★3)</div>
-                            <div class="text-2xl font-extrabold text-amber-900 mt-0.5" id="inReviewCardsCount">0</div>
-                        </div>
-                        <div class="bg-rose-50 border border-rose-200 p-4 rounded-2xl">
-                            <div class="text-[11px] font-bold text-rose-600 uppercase">Por Aprender (★1-2)</div>
-                            <div class="text-2xl font-extrabold text-rose-900 mt-0.5" id="toLearnCardsCount">0</div>
-                        </div>
-                    </div>
-
-                    <!-- Star Breakdown & Accuracy -->
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
-                        <h3 class="text-xs font-bold text-slate-800">Distribuição por Estrelas</h3>
-                        <div class="space-y-2.5" id="starBreakdownBars">
-                            <!-- Populated dynamically -->
-                        </div>
-                    </div>
                 </div>
             </section>
 
         </main>
+    </div>
+
+    <!-- Modal para Criar Nova Ilha -->
+    <div id="newIslandModal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-base font-bold text-slate-900 flex items-center">
+                    <i class="fa-solid fa-map text-brand-600 mr-2"></i> Criar Nova Ilha
+                </h3>
+                <button onclick="closeNewIslandModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Nome da Ilha</label>
+                <input type="text" id="modalNewIslandName" placeholder="Ex: Viagens, Negócios..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 font-semibold text-slate-900">
+            </div>
+            <div class="grid grid-cols-2 gap-2 pt-2">
+                <button onclick="closeNewIslandModal()" class="bg-slate-100 text-slate-700 font-semibold py-2.5 rounded-xl text-xs hover:bg-slate-200 transition">
+                    Cancelar
+                </button>
+                <button onclick="confirmCreateNewIslandModal()" class="bg-brand-600 text-white font-semibold py-2.5 rounded-xl text-xs shadow hover:bg-brand-700 transition">
+                    Criar Ilha
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Modal de Importação em Massa -->
@@ -1055,7 +1105,6 @@
                 const cleanLine = line.trim();
                 if (!cleanLine) return;
 
-                // Tenta dividir por '/' ou ';'
                 let parts = [];
                 if (cleanLine.includes('/')) {
                     parts = cleanLine.split('/');
@@ -1100,6 +1149,36 @@
                 alert(`${addedCount} frases importadas com sucesso!`);
             } else {
                 alert("Nenhuma frase válida encontrada. Certifique-se de usar '/' ou ';' como separadores.");
+            }
+        }
+
+        function handleIslandSelectChange(selectEl) {
+            if (selectEl.value === '__new_island__') {
+                selectEl.value = "";
+                document.getElementById('modalNewIslandName').value = "";
+                document.getElementById('newIslandModal').classList.remove('hidden');
+            }
+        }
+
+        function closeNewIslandModal() {
+            document.getElementById('newIslandModal').classList.add('hidden');
+        }
+
+        function confirmCreateNewIslandModal() {
+            const nameInput = document.getElementById('modalNewIslandName').value.trim();
+            if (nameInput) {
+                const newId = 'island-' + Date.now();
+                islands.push({
+                    id: newId,
+                    name: nameInput,
+                    phrases: []
+                });
+                saveAll();
+                updateIslandSelectDropdowns();
+                document.getElementById('newPhraseIslandSelect').value = newId;
+                closeNewIslandModal();
+            } else {
+                alert("Por favor, digite o nome da ilha.");
             }
         }
 
@@ -1180,7 +1259,8 @@
 
         function updateIslandSelectDropdowns() {
             const opts = `<option value="">Inbox</option>` + 
-                islands.map(i => `<option value="${i.id}">${i.name}</option>`).join('');
+                islands.map(i => `<option value="${i.id}">${i.name}</option>`).join('') +
+                `<option value="__new_island__" class="font-bold text-brand-600">+ Criar nova ilha...</option>`;
             
             const sel1 = document.getElementById('newPhraseIslandSelect');
             if (sel1) sel1.innerHTML = opts;
@@ -2039,7 +2119,7 @@
             toggleAudioPlaylist();
         }
 
-        // Language Islands Management (Exibindo em formato de tabela estilizada)
+        // Language Islands Management (Tabela de Ilhas)
         function renderIslandsHome() {
             const tbody = document.getElementById('islandsTableBody');
             if (!tbody) return;
@@ -2165,34 +2245,33 @@
 
         function renderStatsView() {
             const allItems = [...customPhrases, ...islands.flatMap(i => i.phrases)];
-            let learned = 0, inReview = 0, toLearn = 0;
-            const starCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0, 0: 0 };
+            
+            const totalPhrases = allItems.length;
+            const activePhrases = allItems.filter(item => (item.stars || 0) === 5).length;
+            document.getElementById('statTotalPhrases').innerText = totalPhrases;
+            document.getElementById('statActivePhrases').innerText = activePhrases;
 
+            const totalReps = allItems.reduce((acc, item) => acc + (item.playCount || 0), 0);
+            const todayReps = studyStats.totalRepsToday || 0;
+            document.getElementById('statTotalReps').innerText = totalReps;
+            document.getElementById('statTodayReps').innerText = todayReps;
+
+            const totalMinutes = studyStats.studyTimeToday || 0;
+            const todayMinutes = studyStats.studyTimeToday || 0;
+            document.getElementById('statTotalTime').innerText = totalMinutes + " min";
+            document.getElementById('statTodayTime').innerText = todayMinutes + " min";
+
+            const starCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0, 0: 0 };
             allItems.forEach(item => {
                 const s = item.stars || 0;
                 starCounts[s] = (starCounts[s] || 0) + 1;
-                if (s >= 4) learned++;
-                else if (s === 3) inReview++;
-                else toLearn++;
             });
-
-            document.getElementById('learnedCardsCount').innerText = learned;
-            document.getElementById('inReviewCardsCount').innerText = inReview;
-            document.getElementById('toLearnCardsCount').innerText = toLearn;
-
-            if (allItems.length > 0) {
-                const totalStars = allItems.reduce((acc, item) => acc + (item.stars || 0), 0);
-                const mastery = Math.round((totalStars / (allItems.length * 5)) * 100);
-                document.getElementById('overallMasteryScore').innerText = mastery + '%';
-            } else {
-                document.getElementById('overallMasteryScore').innerText = '0%';
-            }
 
             const barsContainer = document.getElementById('starBreakdownBars');
             if (barsContainer) {
                 barsContainer.innerHTML = [5, 4, 3, 2, 1, 0].map(star => {
                     const count = starCounts[star] || 0;
-                    const pct = allItems.length > 0 ? Math.round((count / allItems.length) * 100) : 0;
+                    const pct = totalPhrases > 0 ? Math.round((count / totalPhrases) * 100) : 0;
                     const label = star > 0 ? `${star} Estrela${star > 1 ? 's' : ''}` : 'Sem classificação (0)';
                     return `
                         <div class="space-y-1">
