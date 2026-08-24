@@ -72,11 +72,11 @@
                     <span id="streakCount">1</span>d
                 </div>
 
-                <!-- User Profile Avatar & Sync Status -->
+                <!-- Sync Status & Manual Sync Button -->
                 <div class="flex items-center space-x-2">
-                    <span id="syncStatusBadge" class="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full font-semibold border border-emerald-100 flex items-center">
+                    <button onclick="manualSync()" id="syncStatusBadge" class="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full font-semibold border border-emerald-100 flex items-center hover:bg-emerald-100 transition cursor-pointer" title="Clique para sincronizar">
                         <i class="fa-solid fa-cloud mr-1"></i> Sincronizado
-                    </span>
+                    </button>
                     <div class="w-9 h-9 rounded-full bg-brand-100 border-2 border-brand-500 flex items-center justify-center text-brand-700 font-bold shadow-inner">
                         <i class="fa-solid fa-user text-sm"></i>
                     </div>
@@ -578,6 +578,18 @@
             <!-- 6. PERFORMANCE STATS VIEW -->
             <section id="view-stats" class="hidden space-y-4">
                 <div class="bg-white border border-slate-200 rounded-3xl p-4 sm:p-6 shadow-sm space-y-4">
+                    <!-- Botão de Exportar Backup (TXT) -->
+                    <div class="bg-brand-50 border border-brand-100 p-4 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <h3 class="text-xs font-bold text-brand-900">Backup das Frases</h3>
+                            <p class="text-[10px] text-slate-500">Exporte todas as suas frases em formato TXT.</p>
+                        </div>
+                        <button onclick="exportPhrasesBackupTxt()" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-4 py-2 rounded-xl text-xs shadow transition flex items-center space-x-1.5">
+                            <i class="fa-solid fa-download"></i>
+                            <span>Exportar TXT</span>
+                        </button>
+                    </div>
+
                     <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                         <div>
                             <h2 class="text-lg font-bold text-slate-900">Estatísticas de Desempenho</h2>
@@ -821,7 +833,7 @@
                         const badge = document.getElementById('syncStatusBadge');
                         if (badge) {
                             badge.innerHTML = `<i class="fa-solid fa-cloud mr-1"></i> Sincronizado`;
-                            badge.className = "text-[10px] bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full font-semibold border border-emerald-100 flex items-center";
+                            badge.className = "text-[10px] bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full font-semibold border border-emerald-100 flex items-center hover:bg-emerald-100 transition cursor-pointer";
                         }
                     }
                 }, (error) => {
@@ -876,8 +888,8 @@
 
         checkAndResetDailyStats();
 
-        let currentActiveIslandId = null; // null means home list of islands
-        let deleteTarget = null; // { type: 'global', index: number }
+        let currentActiveIslandId = null; 
+        let deleteTarget = null; 
         let editingPhraseGlobalIndex = null;
 
         let lastAudioPlayTimestamp = 0;
@@ -922,6 +934,43 @@
                 renderIslandDetailPhrases();
             }
             renderStatsView();
+        }
+
+        function manualSync() {
+            const badge = document.getElementById('syncStatusBadge');
+            if (badge) {
+                badge.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Sincronizando...`;
+            }
+            setTimeout(() => {
+                saveAll();
+                if (badge) {
+                    badge.innerHTML = `<i class="fa-solid fa-cloud mr-1"></i> Sincronizado`;
+                }
+            }, 600);
+        }
+
+        function exportPhrasesBackupTxt() {
+            const allItems = [
+                ...customPhrases.map(p => ({ item: p, island: 'Inbox' })),
+                ...islands.flatMap(i => i.islands ? [] : i.phrases.map(p => ({ item: p, island: i.name })))
+            ];
+
+            let content = "=== SRS-MASTER BACKUP DE FRASES ===\n\n";
+            allItems.forEach((obj, idx) => {
+                content += `#${idx + 1} [Ilha: ${obj.island}] [Reps: ${obj.item.playCount || 0}] [Estrelas: ${obj.item.stars || 0}]\n`;
+                content += `EN: ${obj.item.pt}\n`;
+                content += `PT: ${obj.item.en}\n\n`;
+            });
+
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `srs-master-backup-${new Date().toISOString().slice(0, 10)}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
 
         function openGoalModal() {
@@ -1363,16 +1412,8 @@
 
         function playPronunciation(text, lang, globalIndex) {
             if ('speechSynthesis' in window) {
-                // Interrompe imediatamente qualquer áudio em andamento e PARA a playlist se estiver a tocar
-                window.speechSynthesis.cancel();
-                if (isPlaylistPlaying) {
-                    isPlaylistPlaying = false;
-                    const playIcon = document.getElementById('playlistPlayIcon');
-                    if (playIcon) playIcon.className = "fa-solid fa-play";
-                    const statusText = document.getElementById('playlistStatus');
-                    if (statusText) statusText.innerText = "Parado";
-                }
-
+                // Interrompe qualquer áudio individual anterior, mas NÃO cancela nem desliga a playlist geral.
+                // Assim, a playlist continua a rodar naturalmente.
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = lang;
                 
@@ -1395,14 +1436,6 @@
                             offset += island.phrases.length;
                         }
                     }
-                    
-                    if (activePlaylistItemsList.length > 0) {
-                        const foundIdx = activePlaylistItemsList.findIndex(obj => obj.globalIdx === globalIndex);
-                        if (foundIdx !== -1) {
-                            playlistCurrentIndex = foundIdx;
-                        }
-                    }
-
                     scrollToCard(globalIndex);
                 }
                 recordPlayAction(targetItem);
