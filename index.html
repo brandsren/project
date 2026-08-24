@@ -111,7 +111,7 @@
             <div class="bg-slate-100 p-3 rounded-xl border border-slate-200">
                 <div class="flex items-center justify-between mb-1">
                     <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Meta Diária</span>
-                    <span id="goalPercentSidebar" class="text-[11px] font-bold text-brand-600">0%</span>
+                    <span id="goalPercentSidebar" class="text-[11px] font-bold text-brand-600">Meta</span>
                 </div>
                 <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
                     <div id="goalProgressBarSidebar" class="bg-brand-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
@@ -137,9 +137,6 @@
                             <button onclick="openGoalModal()" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition shadow-sm" title="Configurar meta">
                                 <i class="fa-solid fa-sliders text-xs"></i>
                             </button>
-                            <div id="goalPercentBadge" class="bg-brand-50 text-brand-700 font-extrabold text-xs px-3 py-1.5 rounded-full border border-brand-100">
-                                0%
-                            </div>
                         </div>
                     </div>
 
@@ -210,68 +207,97 @@
                 </div>
             </section>
 
-            <!-- 2. FLASHCARDS VIEW -->
+            <!-- 2. FLASHCARDS VIEW (Tabela de Baralhos / Ilhas) -->
             <section id="view-flashcards" class="hidden max-w-md mx-auto space-y-4">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-lg font-bold text-slate-900">Repetição Espaçada SM-2</h2>
-                    <span id="cardProgress" class="text-xs font-semibold text-slate-500">1 / 5</span>
-                </div>
-
-                <!-- Card container -->
-                <div class="perspective-1000 h-72 w-full cursor-pointer" onclick="flipCard()">
-                    <div id="flashcardInner" class="relative w-full h-full duration-500 transform-style-3d shadow-xl rounded-2xl">
-                        <!-- Front (Portuguese) -->
-                        <div class="absolute inset-0 bg-white border border-slate-200 rounded-2xl p-6 flex flex-col justify-between backface-hidden">
-                            <div class="flex justify-between items-center text-slate-400 text-xs font-medium">
-                                <span>Frente (Português)</span>
-                                <i class="fa-solid fa-rotate"></i>
-                            </div>
-                            <div class="text-center space-y-2">
-                                <h3 id="cardFrontText" class="text-xl font-extrabold text-slate-900">O prédio mais alto da cidade.</h3>
-                                <p class="text-[11px] text-slate-400">Toque para virar o cartão</p>
-                            </div>
-                            <div class="flex justify-center">
-                                <button onclick="event.stopPropagation(); playPronunciation(document.getElementById('cardFrontText').innerText, 'pt-BR');" class="bg-brand-50 text-brand-600 px-3 py-1.5 rounded-xl text-xs font-semibold hover:bg-brand-100 transition">
-                                    <i class="fa-solid fa-volume-high mr-1"></i> Ouvir PT
-                                </button>
-                            </div>
+                
+                <!-- Tabela de Seleção de Baralho (Ilha) para Flashcards -->
+                <div id="flashcardDeckSelector" class="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div>
+                            <h2 class="text-base font-bold text-slate-900">Baralhos de Flashcards</h2>
+                            <p class="text-xs text-slate-500">Selecione uma ilha para iniciar a prática.</p>
                         </div>
-                        <!-- Back (English) -->
-                        <div class="absolute inset-0 bg-brand-600 text-white rounded-2xl p-6 flex flex-col justify-between backface-hidden rotate-y-180">
-                            <div class="flex justify-between items-center text-brand-200 text-xs font-medium">
-                                <span>Verso (English)</span>
-                                <i class="fa-solid fa-rotate"></i>
-                            </div>
-                            <div class="text-center space-y-2">
-                                <h3 id="cardBackText" class="text-xl font-extrabold">The tallest building in the city.</h3>
-                            </div>
-                            <div class="flex justify-center">
-                                <button onclick="event.stopPropagation(); playPronunciation(document.getElementById('cardBackText').innerText, 'en-US');" class="bg-white/20 text-white px-3 py-1.5 rounded-xl text-xs font-semibold hover:bg-white/30 transition">
-                                    <i class="fa-solid fa-volume-high mr-1"></i> Ouvir EN
-                                </button>
-                            </div>
-                        </div>
+                    </div>
+                    <div class="overflow-x-auto border border-slate-200 rounded-2xl">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-600 uppercase">
+                                    <th class="py-3 px-4">Nome da Ilha</th>
+                                    <th class="py-3 px-4 text-center">Nº de Frases</th>
+                                    <th class="py-3 px-4 text-right">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-xs font-medium text-slate-700" id="flashcardDeckTableBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-                <!-- SM-2 Action Controls -->
-                <div class="grid grid-cols-4 gap-2 pt-2">
-                    <button onclick="answerCard(1)" class="bg-rose-50 text-rose-700 border border-rose-200 py-2.5 rounded-xl font-bold text-xs hover:bg-rose-100 transition flex flex-col items-center">
-                        <span>Novamente</span>
-                        <span class="text-[9px] opacity-75">1d</span>
-                    </button>
-                    <button onclick="answerCard(2)" class="bg-orange-50 text-orange-700 border border-orange-200 py-2.5 rounded-xl font-bold text-xs hover:bg-orange-100 transition flex flex-col items-center">
-                        <span>Difícil</span>
-                        <span class="text-[9px] opacity-75">3d</span>
-                    </button>
-                    <button onclick="answerCard(3)" class="bg-amber-50 text-amber-700 border border-amber-200 py-2.5 rounded-xl font-bold text-xs hover:bg-amber-100 transition flex flex-col items-center">
-                        <span>Bom</span>
-                        <span class="text-[9px] opacity-75">7d</span>
-                    </button>
-                    <button onclick="answerCard(4)" class="bg-emerald-50 text-emerald-700 border border-emerald-200 py-2.5 rounded-xl font-bold text-xs hover:bg-emerald-100 transition flex flex-col items-center">
-                        <span>Fácil</span>
-                        <span class="text-[9px] opacity-75">14d</span>
-                    </button>
+                <!-- Container do Cartão (Inicialmente oculto até escolher o baralho) -->
+                <div id="flashcardPlayArea" class="hidden space-y-4">
+                    <div class="flex items-center justify-between">
+                        <button onclick="backToDeckSelector()" class="text-xs font-semibold text-brand-600 hover:underline flex items-center">
+                            <i class="fa-solid fa-arrow-left mr-1"></i> Trocar Baralho
+                        </button>
+                        <span id="cardProgress" class="text-xs font-semibold text-slate-500">1 / 5</span>
+                    </div>
+
+                    <div class="perspective-1000 h-72 w-full cursor-pointer" onclick="flipCard()">
+                        <div id="flashcardInner" class="relative w-full h-full duration-500 transform-style-3d shadow-xl rounded-2xl">
+                            <!-- Front (Portuguese) -->
+                            <div class="absolute inset-0 bg-white border border-slate-200 rounded-2xl p-6 flex flex-col justify-between backface-hidden">
+                                <div class="flex justify-between items-center text-slate-400 text-xs font-medium">
+                                    <span>Frente (Português)</span>
+                                    <i class="fa-solid fa-rotate"></i>
+                                </div>
+                                <div class="text-center space-y-2">
+                                    <h3 id="cardFrontText" class="text-xl font-extrabold text-slate-900">O prédio mais alto da cidade.</h3>
+                                    <p class="text-[11px] text-slate-400">Toque para virar o cartão</p>
+                                </div>
+                                <div class="flex justify-center">
+                                    <button onclick="event.stopPropagation(); playPronunciation(document.getElementById('cardFrontText').innerText, 'pt-BR');" class="bg-brand-50 text-brand-600 px-3 py-1.5 rounded-xl text-xs font-semibold hover:bg-brand-100 transition">
+                                        <i class="fa-solid fa-volume-high mr-1"></i> Ouvir PT
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Back (English) -->
+                            <div class="absolute inset-0 bg-brand-600 text-white rounded-2xl p-6 flex flex-col justify-between backface-hidden rotate-y-180">
+                                <div class="flex justify-between items-center text-brand-200 text-xs font-medium">
+                                    <span>Verso (English)</span>
+                                    <i class="fa-solid fa-rotate"></i>
+                                </div>
+                                <div class="text-center space-y-2">
+                                    <h3 id="cardBackText" class="text-xl font-extrabold">The tallest building in the city.</h3>
+                                </div>
+                                <div class="flex justify-center">
+                                    <button onclick="event.stopPropagation(); playPronunciation(document.getElementById('cardBackText').innerText, 'en-US');" class="bg-white/20 text-white px-3 py-1.5 rounded-xl text-xs font-semibold hover:bg-white/30 transition">
+                                        <i class="fa-solid fa-volume-high mr-1"></i> Ouvir EN
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SM-2 Action Controls -->
+                    <div class="grid grid-cols-4 gap-2 pt-2">
+                        <button onclick="answerCard(1)" class="bg-rose-50 text-rose-700 border border-rose-200 py-2.5 rounded-xl font-bold text-xs hover:bg-rose-100 transition flex flex-col items-center">
+                            <span>Novamente</span>
+                            <span class="text-[9px] opacity-75">1d</span>
+                        </button>
+                        <button onclick="answerCard(2)" class="bg-orange-50 text-orange-700 border border-orange-200 py-2.5 rounded-xl font-bold text-xs hover:bg-orange-100 transition flex flex-col items-center">
+                            <span>Difícil</span>
+                            <span class="text-[9px] opacity-75">3d</span>
+                        </button>
+                        <button onclick="answerCard(3)" class="bg-amber-50 text-amber-700 border border-amber-200 py-2.5 rounded-xl font-bold text-xs hover:bg-amber-100 transition flex flex-col items-center">
+                            <span>Bom</span>
+                            <span class="text-[9px] opacity-75">7d</span>
+                        </button>
+                        <button onclick="answerCard(4)" class="bg-emerald-50 text-emerald-700 border border-emerald-200 py-2.5 rounded-xl font-bold text-xs hover:bg-emerald-100 transition flex flex-col items-center">
+                            <span>Fácil</span>
+                            <span class="text-[9px] opacity-75">14d</span>
+                        </button>
+                    </div>
                 </div>
             </section>
 
@@ -810,15 +836,11 @@
                 </button>
             </div>
             <p class="text-xs text-slate-500 leading-relaxed">
-                Defina um objetivo pessoal. Alcance minutos ou repetições para concluir a meta de hoje.
+                Defina um objetivo pessoal de repetições diárias.
             </p>
             <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Minutos</label>
-                    <input type="number" id="modalGoalMinutes" min="1" max="180" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Repetições</label>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Meta de Repetições (por dia)</label>
                     <input type="number" id="modalGoalReps" min="5" max="1000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
                 </div>
             </div>
@@ -826,8 +848,8 @@
                 <button onclick="saveModalGoal()" class="w-full bg-brand-600 text-white font-bold py-3 rounded-2xl text-sm shadow-md hover:bg-brand-700 transition">
                     Guardar meta
                 </button>
-                <button onclick="useDefaultGoal()" class="w-full text-brand-600 font-semibold py-2 rounded-xl text-xs hover:bg-brand-50 transition">
-                    Usar meta predefinida
+                <button onclick="useDefaultGoal()" class="w-full text-brand-600 font-semibold py-2 rounded-xl text-xs hover:bg-slate-50 transition">
+                    Usar meta predefinida (200)
                 </button>
             </div>
         </div>
@@ -942,6 +964,7 @@
                         updatePhraseIslandFilterDropdown();
                         renderCustomPhrasesList();
                         renderIslandsHome();
+                        renderFlashcardDeckTable();
                         updateIslandSelectDropdowns();
                         if (currentActiveIslandId) renderIslandDetailPhrases();
                         renderStatsView();
@@ -1002,6 +1025,7 @@
         let currentActiveIslandId = null; 
         let deleteTarget = null; 
         let editingPhraseGlobalIndex = null;
+        let selectedFlashcardDeckId = null;
 
         let lastAudioPlayTimestamp = 0;
         let isPlaylistPlaying = false;
@@ -1040,6 +1064,7 @@
             updatePhraseIslandFilterDropdown();
             renderCustomPhrasesList();
             renderIslandsHome();
+            renderFlashcardDeckTable();
             updateIslandSelectDropdowns();
             if (currentActiveIslandId) {
                 renderIslandDetailPhrases();
@@ -1183,7 +1208,6 @@
         }
 
         function openGoalModal() {
-            document.getElementById('modalGoalMinutes').value = studyStats.goalMinutes || 10;
             document.getElementById('modalGoalReps').value = studyStats.goalReps || 200;
             document.getElementById('goalModal').classList.remove('hidden');
         }
@@ -1209,16 +1233,13 @@
         }
 
         function saveModalGoal() {
-            const min = parseInt(document.getElementById('modalGoalMinutes').value) || 10;
             const reps = parseInt(document.getElementById('modalGoalReps').value) || 200;
-            studyStats.goalMinutes = min;
             studyStats.goalReps = reps;
             saveAll();
             closeGoalModal();
         }
 
         function useDefaultGoal() {
-            studyStats.goalMinutes = 10;
             studyStats.goalReps = 200;
             saveAll();
             closeGoalModal();
@@ -1226,22 +1247,18 @@
 
         function updateDashboardStats() {
             checkAndResetDailyStats();
-            const goalMin = studyStats.goalMinutes || 10;
             const goalRep = studyStats.goalReps || 200;
-            const currentMin = studyStats.studyTimeToday || 0;
             const currentRep = studyStats.totalRepsToday || 0;
 
-            const minPct = Math.min(100, Math.round((currentMin / goalMin) * 100));
             const repPct = Math.min(100, Math.round((currentRep / goalRep) * 100));
-            const overallPct = Math.max(minPct, repPct);
 
-            document.getElementById('goalPercentBadge').innerText = overallPct + '%';
-            document.getElementById('goalPercentSidebar').innerText = overallPct + '%';
-            document.getElementById('goalProgressBarSidebar').style.width = overallPct + '%';
+            document.getElementById('goalPercentBadge').innerText = repPct + '%';
+            document.getElementById('goalPercentSidebar').innerText = repPct + '%';
+            document.getElementById('goalProgressBarSidebar').style.width = repPct + '%';
             document.getElementById('goalTextSidebar').innerText = `${currentRep} / ${goalRep} rep. hoje`;
 
-            document.getElementById('minutosGoalText').innerText = `${currentMin}/${goalMin} min`;
-            document.getElementById('minutosProgressBar').style.width = minPct + '%';
+            document.getElementById('minutosGoalText').innerText = `${studyStats.studyTimeToday || 0} min`;
+            document.getElementById('minutosProgressBar').style.width = '100%';
 
             document.getElementById('repGoalText').innerText = `${currentRep}/${goalRep} rep.`;
             document.getElementById('repProgressBar').style.width = repPct + '%';
@@ -1322,7 +1339,9 @@
             if (mainArea) mainArea.scrollTop = 0;
             window.scrollTo(0, 0);
 
-            if (tabId === 'flashcards') initFlashcards();
+            if (tabId === 'flashcards') {
+                backToDeckSelector();
+            }
             if (tabId === 'custom-phrases') {
                 updatePhraseIslandFilterDropdown();
                 renderCustomPhrasesList();
@@ -1544,28 +1563,79 @@
             saveAll();
         }
 
-        // SM-2 Flashcards Logic
+        // SM-2 Flashcards Logic with Tabela de Ilhas / Baralhos
         let currentCardIndex = 0;
         let isCardFlipped = false;
+        let currentFlashcardList = [];
 
-        function initFlashcards() {
-            currentCardIndex = 0;
-            isCardFlipped = false;
-            showCurrentCard();
+        function renderFlashcardDeckTable() {
+            const tbody = document.getElementById('flashcardDeckTableBody');
+            if (!tbody) return;
+
+            let html = `
+                <tr onclick="selectFlashcardDeck('inbox')" class="hover:bg-slate-50 transition cursor-pointer border-b border-slate-100">
+                    <td class="py-3 px-4 font-bold text-slate-900">Inbox</td>
+                    <td class="py-3 px-4 text-center text-slate-600">${customPhrases.length} frases</td>
+                    <td class="py-3 px-4 text-right text-slate-400">
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </td>
+                </tr>
+            `;
+
+            islands.forEach(island => {
+                html += `
+                    <tr onclick="selectFlashcardDeck('${island.id}')" class="hover:bg-slate-50 transition cursor-pointer border-b border-slate-100">
+                        <td class="py-3 px-4 font-bold text-slate-900">${island.name}</td>
+                        <td class="py-3 px-4 text-center text-slate-600">${island.phrases.length} frases</td>
+                        <td class="py-3 px-4 text-right text-slate-400">
+                            <i class="fa-solid fa-chevron-right text-xs"></i>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
         }
 
-        function showCurrentCard() {
-            const allItems = [
-                ...customPhrases.map(p => ({ ...p, islandName: 'Inbox' })),
-                ...islands.flatMap(i => i.phrases.map(p => ({ ...p, islandName: i.name })))
-            ];
-            const list = allItems.length > 0 ? allItems : [{ en: "The tallest building in the city.", pt: "O prédio mais alto da cidade.", stars: 0 }];
-            if (currentCardIndex >= list.length) currentCardIndex = 0;
-            const item = list[currentCardIndex];
+        function selectFlashcardDeck(deckId) {
+            selectedFlashcardDeckId = deckId;
+            if (deckId === 'inbox') {
+                currentFlashcardList = [...customPhrases];
+            } else {
+                const island = islands.find(i => i.id === deckId);
+                currentFlashcardList = island ? [...island.phrases] : [];
+            }
+
+            if (currentFlashcardList.length === 0) {
+                alert("Este baralho/ilha não possui frases.");
+                return;
+            }
+
+            document.getElementById('flashcardDeckSelector').classList.add('hidden');
+            document.getElementById('flashcardPlayArea').classList.remove('hidden');
+            initFlashcardsForDeck();
+        }
+
+        function backToDeckSelector() {
+            document.getElementById('flashcardPlayArea').classList.add('hidden');
+            document.getElementById('flashcardDeckSelector').classList.remove('hidden');
+            renderFlashcardDeckTable();
+        }
+
+        function initFlashcardsForDeck() {
+            currentCardIndex = 0;
+            isCardFlipped = false;
+            showCurrentCardForDeck();
+        }
+
+        function showCurrentCardForDeck() {
+            if (currentFlashcardList.length === 0) return;
+            if (currentCardIndex >= currentFlashcardList.length) currentCardIndex = 0;
+            const item = currentFlashcardList[currentCardIndex];
 
             document.getElementById('cardFrontText').innerText = item.en;
             document.getElementById('cardBackText').innerText = item.pt;
-            document.getElementById('cardProgress').innerText = `${currentCardIndex + 1} / ${list.length}`;
+            document.getElementById('cardProgress').innerText = `${currentCardIndex + 1} / ${currentFlashcardList.length}`;
             
             const inner = document.getElementById('flashcardInner');
             if (inner) {
@@ -1585,9 +1655,8 @@
         }
 
         function answerCard(quality) {
-            const allItems = [...customPhrases, ...islands.flatMap(i => i.phrases)];
-            if (allItems.length > 0) {
-                const item = allItems[currentCardIndex];
+            if (currentFlashcardList.length > 0) {
+                const item = currentFlashcardList[currentCardIndex];
                 let repetition = item.repetition || 0;
                 let interval = item.interval || 1;
                 let easeFactor = item.easeFactor || 2.5;
@@ -1617,8 +1686,8 @@
                 recordPlayAction(item);
             }
 
-            currentCardIndex = (currentCardIndex + 1) % allItems.length;
-            showCurrentCard();
+            currentCardIndex = (currentCardIndex + 1) % currentFlashcardList.length;
+            showCurrentCardForDeck();
         }
 
         function scrollToCard(globalIndex) {
@@ -2294,6 +2363,7 @@
             updatePhraseIslandFilterDropdown();
             renderCustomPhrasesList();
             renderIslandsHome();
+            renderFlashcardDeckTable();
             updateIslandSelectDropdowns();
         };
     </script>
