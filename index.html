@@ -1042,7 +1042,7 @@
         let activePlaylistItemsList = [];
         let activePlaylistFiltersSignature = "";
 
-        // Timer real para contar o tempo de estudo (minutos) de forma ativa
+        // Timer real para contar os minutos de estudo
         setInterval(() => {
             checkAndResetDailyStats();
             studyStats.studyTimeToday = (studyStats.studyTimeToday || 0) + 1;
@@ -1324,8 +1324,6 @@
                     mobBtn.className = "flex flex-col items-center justify-center flex-1 py-1 text-slate-400";
                 }
             });
-
-            // Mantém a playlist intacta (pausada ou pronta) ao mudar de aba, permitindo a continuidade exata.
 
             const targetView = document.getElementById(`view-${tabId}`);
             if (targetView) targetView.classList.remove('hidden');
@@ -1714,22 +1712,15 @@
 
         function playPronunciation(text, lang, globalIndex) {
             if ('speechSynthesis' in window) {
-                // Interrompe/pausa a playlist geral instantaneamente e mantém o índice na frase ouvida
+                // Interrompe imediatamente a playlist geral
                 if (isPlaylistPlaying) {
                     isPlaylistPlaying = false;
-                    window.speechSynthesis.cancel();
                     const playIcon = document.getElementById('playlistPlayIcon');
                     if (playIcon) playIcon.className = "fa-solid fa-play";
                     const statusText = document.getElementById('playlistStatus');
                     if (statusText) statusText.innerText = "Pausado";
-
-                    const islandPlayIcon = document.getElementById('islandPlaylistPlayIcon');
-                    if (islandPlayIcon) islandPlayIcon.className = "fa-solid fa-play";
-                    const islandStatusText = document.getElementById('islandPlaylistStatus');
-                    if (islandStatusText) islandStatusText.innerText = "Pausado";
-                } else {
-                    window.speechSynthesis.cancel();
                 }
+                window.speechSynthesis.cancel();
 
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = lang;
@@ -1754,17 +1745,35 @@
                         }
                     }
                     
-                    // Atualiza exatamente o índice da playlist para continuar a partir desta frase ao retomar o play geral
+                    // Constrói a lista ativa se ainda não estiver criada para sincronizar o ponteiro perfeitamente
+                    if (activePlaylistItemsList.length === 0) {
+                        const selectedIslandFilter = document.getElementById('phraseIslandFilter')?.value || 'all';
+                        const sortOrder = document.getElementById('phraseSortOrder')?.value || 'oldest';
+                        const starFilter = document.getElementById('phraseStarFilter')?.value || 'all';
+                        
+                        let sourceList = [
+                            ...customPhrases.map((p, i) => ({ item: p, globalIdx: i, islandId: 'inbox' })),
+                            ...islands.flatMap((island, isI) => {
+                                let offset = customPhrases.length;
+                                for(let k=0; k<isI; k++) offset += islands[k].phrases.length;
+                                return island.phrases.map((p, pI) => ({ item: p, globalIdx: offset + pI, islandId: island.id }));
+                            })
+                        ];
+                        if (selectedIslandFilter !== 'all') {
+                            sourceList = sourceList.filter(obj => selectedIslandFilter === 'inbox' ? obj.islandId === 'inbox' : obj.islandId === selectedIslandFilter);
+                        }
+                        if (starFilter !== 'all') {
+                            const targetStars = parseInt(starFilter);
+                            sourceList = sourceList.filter(obj => (obj.item.stars || 0) === targetStars);
+                        }
+                        activePlaylistItemsList = sourceList;
+                    }
+
+                    // Sincroniza o ponteiro da playlist geral exatamente com esta frase (antes ou depois)
                     if (activePlaylistItemsList.length > 0) {
                         const foundIdx = activePlaylistItemsList.findIndex(obj => obj.globalIdx === globalIndex);
                         if (foundIdx !== -1) {
-                            playlistCurrentIndex = foundIdx; // Define exatamente na frase clicada/ouvida
-                        }
-                    }
-                    if (activeIslandItemsList.length > 0) {
-                        const foundIslandIdx = activeIslandItemsList.findIndex(obj => obj.globalIdx === globalIndex);
-                        if (foundIslandIdx !== -1) {
-                            islandPlaylistIndex = foundIslandIdx;
+                            playlistCurrentIndex = foundIdx;
                         }
                     }
 
@@ -2047,6 +2056,16 @@
             renderCustomPhrasesList();
         }
 
+        function resetPlaylistPlayback() {
+            playlistCurrentIndex = 0;
+            isPlaylistPlaying = false;
+            window.speechSynthesis.cancel();
+            const playIcon = document.getElementById('playlistPlayIcon');
+            if (playIcon) playIcon.className = "fa-solid fa-play";
+            const statusText = document.getElementById('playlistStatus');
+            if (statusText) statusText.innerText = "Pronto (Início)";
+        }
+
         // Sequential Audio Playlist (Global)
         function toggleAudioPlaylist() {
             const selectedIslandFilter = document.getElementById('phraseIslandFilter')?.value || 'all';
@@ -2059,11 +2078,6 @@
                 window.speechSynthesis.cancel();
                 document.getElementById('playlistPlayIcon').className = "fa-solid fa-play";
                 document.getElementById('playlistStatus').innerText = "Pausado";
-
-                const islandPlayIcon = document.getElementById('islandPlaylistPlayIcon');
-                if (islandPlayIcon) islandPlayIcon.className = "fa-solid fa-play";
-                const islandStatusText = document.getElementById('islandPlaylistStatus');
-                if (islandStatusText) islandStatusText.innerText = "Pausado";
                 return;
             }
 
@@ -2132,9 +2146,6 @@
 
             isPlaylistPlaying = true;
             document.getElementById('playlistPlayIcon').className = "fa-solid fa-pause";
-            const islandPlayIcon = document.getElementById('islandPlaylistPlayIcon');
-            if (islandPlayIcon) islandPlayIcon.className = "fa-solid fa-pause";
-
             playNextPlaylistPhrase();
         }
 
@@ -2145,10 +2156,6 @@
                 isPlaylistPlaying = false;
                 document.getElementById('playlistPlayIcon').className = "fa-solid fa-play";
                 document.getElementById('playlistStatus').innerText = "Concluído!";
-                const islandPlayIcon = document.getElementById('islandPlaylistPlayIcon');
-                if (islandPlayIcon) islandPlayIcon.className = "fa-solid fa-play";
-                const islandStatusText = document.getElementById('islandPlaylistStatus');
-                if (islandStatusText) islandStatusText.innerText = "Concluído!";
                 return;
             }
 
@@ -2161,8 +2168,6 @@
             
             const statusMsg = `A reproduzir ${playlistCurrentIndex + 1}/${activePlaylistItemsList.length}`;
             document.getElementById('playlistStatus').innerText = statusMsg;
-            const islandStatusText = document.getElementById('islandPlaylistStatus');
-            if (islandStatusText) islandStatusText.innerText = statusMsg;
 
             scrollToCard(globalCardIdx);
 
