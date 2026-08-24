@@ -286,6 +286,30 @@
 
             <!-- 3. CUSTOM PHRASES VIEW -->
             <section id="view-custom-phrases" class="hidden space-y-4">
+                
+                <!-- PLAYER FIXO NO TOPO (FREEZE) SEM OPÇÕES -->
+                <div class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border border-slate-200/80 rounded-2xl p-3 shadow-md flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <button onclick="toggleAudioPlaylist()" id="playlistPlayBtn" class="bg-brand-600 text-white w-10 h-10 rounded-xl flex items-center justify-center font-bold text-base shadow hover:bg-brand-700 transition">
+                            <i class="fa-solid fa-play" id="playlistPlayIcon"></i>
+                        </button>
+                        <div>
+                            <p class="text-xs font-bold text-slate-900">Playlist Player</p>
+                            <p class="text-[10px] text-slate-500" id="playlistStatus">Pronto</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <!-- Botão Configurações -->
+                        <button onclick="openSettingsModal()" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition shadow-xs" title="Configurações de Áudio">
+                            <i class="fa-solid fa-gear text-xs"></i>
+                        </button>
+                        <!-- Botão Filtros -->
+                        <button onclick="openFilterModal()" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition shadow-xs" title="Filtrar e Ordenar">
+                            <i class="fa-solid fa-filter text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
                 <div class="bg-white border border-slate-200 rounded-3xl p-4 sm:p-6 shadow-sm space-y-4">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                         <div>
@@ -310,73 +334,6 @@
                                 <input type="checkbox" id="hideEnGlobal" onchange="toggleGlobalHide()" class="rounded border-slate-300 text-brand-600 focus:ring-brand-500 mr-1.5">
                                 Ocultar Português
                             </label>
-                        </div>
-                    </div>
-
-                    <!-- Audio Playlist Controls with Pause Time, Filter, Sort, Star & Speed Options -->
-                    <div class="bg-slate-50 border border-slate-200 p-3 rounded-2xl flex flex-wrap items-center justify-between gap-2">
-                        <div class="flex items-center space-x-2">
-                            <button onclick="toggleAudioPlaylist()" id="playlistPlayBtn" class="bg-brand-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shadow hover:bg-brand-700 transition">
-                                <i class="fa-solid fa-play" id="playlistPlayIcon"></i>
-                            </button>
-                            <div>
-                                <p class="text-xs font-bold text-slate-800">Playlist</p>
-                                <p class="text-[10px] text-slate-500" id="playlistStatus">Pronto</p>
-                            </div>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-1.5">
-                            <div class="flex items-center space-x-1">
-                                <select id="phraseSortOrder" onchange="onPlaylistFilterOrSortChange()" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-semibold text-slate-700 focus:outline-none">
-                                    <option value="oldest" selected>Antigas</option>
-                                    <option value="newest">Novas</option>
-                                    <option value="most_played">Mais Rep.</option>
-                                    <option value="least_played">Menos Rep.</option>
-                                </select>
-                            </div>
-                            <div class="flex items-center space-x-1">
-                                <select id="phraseIslandFilter" onchange="onPlaylistFilterOrSortChange()" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-semibold text-slate-700 focus:outline-none">
-                                    <option value="all">Todas</option>
-                                    <option value="inbox">Inbox</option>
-                                </select>
-                            </div>
-                            <div class="flex items-center space-x-1">
-                                <select id="phraseStarFilter" onchange="onPlaylistFilterOrSortChange()" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-semibold text-slate-700 focus:outline-none">
-                                    <option value="all">Estrelas</option>
-                                    <option value="5">★★★★★</option>
-                                    <option value="4">★★★★☆</option>
-                                    <option value="3">★★★☆☆</option>
-                                    <option value="2">★★☆☆☆</option>
-                                    <option value="1">★☆☆☆☆</option>
-                                    <option value="0">0 (Sem)</option>
-                                </select>
-                            </div>
-                            <div class="flex items-center space-x-1">
-                                <select id="phraseRepeatCount" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-semibold text-slate-700 focus:outline-none">
-                                    <option value="1">1x</option>
-                                    <option value="2">2x</option>
-                                    <option value="3">3x</option>
-                                    <option value="4">4x</option>
-                                    <option value="5">5x</option>
-                                </select>
-                            </div>
-                            <div class="flex items-center space-x-1">
-                                <select id="audioSpeedSelect" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-semibold text-slate-700 focus:outline-none">
-                                    <option value="0.5">0.50x</option>
-                                    <option value="0.75">0.75x</option>
-                                    <option value="0.9">0.9x</option>
-                                    <option value="1.0" selected>1.0x</option>
-                                    <option value="1.2">1.2x</option>
-                                    <option value="1.5">1.5x</option>
-                                </select>
-                            </div>
-                            <div class="flex items-center space-x-1">
-                                <select id="phrasePauseTime" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-semibold text-slate-700 focus:outline-none">
-                                    <option value="500">0.5s</option>
-                                    <option value="1000" selected>1.0s</option>
-                                    <option value="2000">2.0s</option>
-                                    <option value="3000">3.0s</option>
-                                </select>
-                            </div>
                         </div>
                     </div>
 
@@ -628,6 +585,106 @@
             </section>
 
         </main>
+    </div>
+
+    <!-- Modal de Configurações do Player -->
+    <div id="settingsModal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-base font-bold text-slate-900 flex items-center">
+                    <i class="fa-solid fa-gear text-brand-600 mr-2"></i> Configurações do Player
+                </h3>
+                <button onclick="closeSettingsModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Velocidade do Áudio</label>
+                    <select id="audioSpeedSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none">
+                        <option value="0.5">0.50x</option>
+                        <option value="0.75">0.75x</option>
+                        <option value="0.9">0.90x</option>
+                        <option value="1.0" selected>1.0x (Normal)</option>
+                        <option value="1.2">1.2x</option>
+                        <option value="1.5">1.5x</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Número de Repetições (Por Frase)</label>
+                    <select id="phraseRepeatCount" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none">
+                        <option value="1" selected>1x</option>
+                        <option value="2">2x</option>
+                        <option value="3">3x</option>
+                        <option value="4">4x</option>
+                        <option value="5">5x</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Tempo de Pausa (Entre Frases)</label>
+                    <select id="phrasePauseTime" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none">
+                        <option value="500">0.5s</option>
+                        <option value="1000" selected>1.0s</option>
+                        <option value="2000">2.0s</option>
+                        <option value="3000">3.0s</option>
+                    </select>
+                </div>
+            </div>
+            <div class="pt-2">
+                <button onclick="closeSettingsModal()" class="w-full bg-brand-600 text-white font-bold py-2.5 rounded-2xl text-xs shadow hover:bg-brand-700 transition">
+                    Concluído
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Filtros e Ordenação -->
+    <div id="filterModal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-base font-bold text-slate-900 flex items-center">
+                    <i class="fa-solid fa-filter text-brand-600 mr-2"></i> Filtrar e Ordenar Frases
+                </h3>
+                <button onclick="closeFilterModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Ordenar por</label>
+                    <select id="phraseSortOrder" onchange="onPlaylistFilterOrSortChange()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none">
+                        <option value="oldest" selected>Mais Antigas</option>
+                        <option value="newest">Mais Novas</option>
+                        <option value="most_played">Mais Repetidas</option>
+                        <option value="least_played">Menos Repetidas</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Filtrar por Ilha</label>
+                    <select id="phraseIslandFilter" onchange="onPlaylistFilterOrSortChange()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none">
+                        <option value="all">Todas</option>
+                        <option value="inbox">Inbox</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Filtrar por Estrelas</label>
+                    <select id="phraseStarFilter" onchange="onPlaylistFilterOrSortChange()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none">
+                        <option value="all">Todas as Estrelas</option>
+                        <option value="5">★★★★★</option>
+                        <option value="4">★★★★☆</option>
+                        <option value="3">★★★☆☆</option>
+                        <option value="2">★★☆☆☆</option>
+                        <option value="1">★☆☆☆☆</option>
+                        <option value="0">Sem classificação (0)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="pt-2">
+                <button onclick="closeFilterModal()" class="w-full bg-brand-600 text-white font-bold py-2.5 rounded-2xl text-xs shadow hover:bg-brand-700 transition">
+                    Aplicar Filtros
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Modal para Mudar de Ilha Diretamente -->
@@ -897,6 +954,7 @@
         let playlistCurrentIndex = 0;
         let activePlaylistItemsList = [];
         let activePlaylistFiltersSignature = "";
+        let lastPlayedGlobalIndex = null; // Para manter o foco e reiniciar a partir da frase seguinte
 
         function recordPlayAction(targetItem) {
             checkAndResetDailyStats();
@@ -981,6 +1039,22 @@
 
         function closeGoalModal() {
             document.getElementById('goalModal').classList.add('hidden');
+        }
+
+        function openSettingsModal() {
+            document.getElementById('settingsModal').classList.remove('hidden');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.add('hidden');
+        }
+
+        function openFilterModal() {
+            document.getElementById('filterModal').classList.remove('hidden');
+        }
+
+        function closeFilterModal() {
+            document.getElementById('filterModal').classList.add('hidden');
         }
 
         function saveModalGoal() {
@@ -1399,21 +1473,33 @@
                 const mainArea = document.getElementById('mainContentArea');
                 if (cardEl && mainArea) {
                     mainArea.scrollTo({
-                        top: cardEl.offsetTop - mainArea.offsetTop - 12,
+                        top: cardEl.offsetTop - mainArea.offsetTop - 70,
                         behavior: 'smooth'
                     });
-                    cardEl.classList.add('ring-2', 'ring-brand-500', 'bg-indigo-50/40');
-                    setTimeout(() => {
-                        cardEl.classList.remove('ring-2', 'ring-brand-500', 'bg-indigo-50/40');
-                    }, 1200);
+                    
+                    // Remover borda de todos os cards e destacar apenas o atual com a borda azul solicitada
+                    document.querySelectorAll('[id^="phrase-card-"]').forEach(el => {
+                        el.classList.remove('ring-2', 'ring-blue-500', 'border-blue-400', 'bg-blue-50/20');
+                    });
+                    cardEl.classList.add('ring-2', 'ring-blue-500', 'border-blue-400', 'bg-blue-50/20');
                 }
             }, 60);
         }
 
         function playPronunciation(text, lang, globalIndex) {
             if ('speechSynthesis' in window) {
-                // Interrompe qualquer áudio individual anterior, mas NÃO cancela nem desliga a playlist geral.
-                // Assim, a playlist continua a rodar naturalmente.
+                // 1. Interrompe a playlist geral pausando-a
+                if (isPlaylistPlaying) {
+                    isPlaylistPlaying = false;
+                    window.speechSynthesis.cancel();
+                    const playIcon = document.getElementById('playlistPlayIcon');
+                    if (playIcon) playIcon.className = "fa-solid fa-play";
+                    const statusText = document.getElementById('playlistStatus');
+                    if (statusText) statusText.innerText = "Pausado";
+                } else {
+                    window.speechSynthesis.cancel();
+                }
+
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = lang;
                 
@@ -1436,6 +1522,15 @@
                             offset += island.phrases.length;
                         }
                     }
+                    
+                    // Atualiza o índice da playlist para a frase seguinte à tocada
+                    if (activePlaylistItemsList.length > 0) {
+                        const foundIdx = activePlaylistItemsList.findIndex(obj => obj.globalIdx === globalIndex);
+                        if (foundIdx !== -1) {
+                            playlistCurrentIndex = foundIdx + 1; // Próxima da selecionada
+                        }
+                    }
+
                     scrollToCard(globalIndex);
                 }
                 recordPlayAction(targetItem);
@@ -1724,7 +1819,7 @@
                 isPlaylistPlaying = false;
                 window.speechSynthesis.cancel();
                 document.getElementById('playlistPlayIcon').className = "fa-solid fa-play";
-                document.getElementById('playlistStatus').innerText = "Parado";
+                document.getElementById('playlistStatus').innerText = "Pausado";
                 return;
             }
 
